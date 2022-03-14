@@ -8,7 +8,6 @@ import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.OrientDB;
 import com.orientechnologies.orient.core.db.OrientDBConfig;
 import com.orientechnologies.orient.core.record.OVertex;
-import com.orientechnologies.orient.core.sql.executor.OResult;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import com.orientechnologies.orient.graph.batch.OGraphBatchInsert;
 
@@ -176,7 +175,7 @@ public class OrientDBAdapter implements DatabaseAdapter {
     }
 
     @Override
-    public long runSelectByIntParTest() {
+    public long runSelectByIntTest() {
         long start = System.currentTimeMillis();
 
         try{
@@ -186,13 +185,13 @@ public class OrientDBAdapter implements DatabaseAdapter {
             OResultSet rs = db.query(query);
 
             while (rs.hasNext()) {
-                OResult item = rs.next();
+                rs.next();
                 i++;
             }
 
             rs.close();
 
-            System.out.println(i);
+//            System.out.println(i);
         } catch (Exception e) {
             e.printStackTrace();
             return -1;
@@ -231,7 +230,56 @@ public class OrientDBAdapter implements DatabaseAdapter {
 
     @Override
     public long runSelectByStringWithLike() {
-        return 0;
+        long start = System.currentTimeMillis();
+
+        try{
+            int i = 0;
+
+            String query = "select * from Person where Name like 'KR%'";
+            OResultSet rs = db.query(query);
+
+            while (rs.hasNext()) {
+                rs.next();
+                i++;
+            }
+
+            rs.close();
+
+//            System.out.println(i);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return -1;
+        }
+
+        long finish = System.currentTimeMillis();
+        return finish - start;
+    }
+
+    @Override
+    public long runSelectByMultipleParTest() {
+        long start = System.currentTimeMillis();
+
+        try{
+            int i = 0;
+
+            String query = "SELECT * FROM Webpage WHERE ID > 75000 AND Url LIKE '%0.html' AND CreationDate >= '2000-01-01'";
+            OResultSet rs = db.query(query);
+
+            while (rs.hasNext()) {
+                rs.next();
+                i++;
+            }
+
+            rs.close();
+
+            System.out.println(i);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return -1;
+        }
+
+        long finish = System.currentTimeMillis();
+        return finish - start;
     }
 
     private void insertData(List<Person> people, List<FriendEdge> friends, List<Webpage> webpages, List<LikeEdge> likes) {

@@ -213,7 +213,7 @@ public class Neo4jAdapter implements DatabaseAdapter {
     }
 
     @Override
-    public long runSelectByIntParTest() {
+    public long runSelectByIntTest() {
         long start = System.currentTimeMillis();
 
         try{
@@ -229,7 +229,7 @@ public class Neo4jAdapter implements DatabaseAdapter {
                 i++;
             }
 
-            System.out.println(i);
+//            System.out.println(i);
             tx.close();
             session.close();
         } catch (Exception e) {
@@ -272,7 +272,62 @@ public class Neo4jAdapter implements DatabaseAdapter {
 
     @Override
     public long runSelectByStringWithLike() {
-        return 0;
+        long start = System.currentTimeMillis();
+
+        try{
+            Session session = driver.session();
+            Transaction tx = session.beginTransaction();
+            int i = 0;
+
+            String query = "MATCH (p:Person) WHERE p.Name STARTS WITH 'KR' RETURN p";
+
+            Result result = tx.run(query);
+            while (result.hasNext()) {
+                result.next();
+                i++;
+            }
+
+//            System.out.println(i);
+            tx.close();
+            session.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return -1;
+        }
+
+
+        long finish = System.currentTimeMillis();
+        return finish - start;
+    }
+
+    @Override
+    public long runSelectByMultipleParTest() {
+        long start = System.currentTimeMillis();
+
+        try{
+            Session session = driver.session();
+            Transaction tx = session.beginTransaction();
+            int i = 0;
+
+            String query = "MATCH (w:Webpage) WHERE w.ID > 75000 AND w.Url ENDS WITH '0.html' AND w.CreationDate >= date({year:2000,month:1,day:1}) RETURN w";
+
+            Result result = tx.run(query);
+            while (result.hasNext()) {
+                result.next();
+                i++;
+            }
+
+            System.out.println(i);
+            tx.close();
+            session.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return -1;
+        }
+
+
+        long finish = System.currentTimeMillis();
+        return finish - start;
     }
 
     private void insertData(List<Person> people, List<FriendEdge> friends, List<Webpage> webpages, List<LikeEdge> likes) {

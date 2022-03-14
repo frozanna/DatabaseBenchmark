@@ -12,10 +12,13 @@ import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
 import javax.persistence.TypedQuery;
+import java.time.LocalDate;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
+
+import static DatabaseAdapters.AdapterUtils.localdateToDate;
 
 public class ObjectDBAdapter implements DatabaseAdapter{
     private EntityManagerFactory emf;
@@ -186,13 +189,13 @@ public class ObjectDBAdapter implements DatabaseAdapter{
     }
 
     @Override
-    public long runSelectByIntParTest() {
+    public long runSelectByIntTest() {
         long start = System.currentTimeMillis();
         try{
             TypedQuery<PersonEntity> query = em.createQuery("SELECT p FROM Person p WHERE p.age > 30", PersonEntity.class);
             List<PersonEntity> results = query.getResultList();
 
-            System.out.println(results.size());
+//            System.out.println(results.size());
         } catch (Exception e) {
             e.printStackTrace();
             return -1;
@@ -229,7 +232,37 @@ public class ObjectDBAdapter implements DatabaseAdapter{
 
     @Override
     public long runSelectByStringWithLike() {
-        return 0;
+        long start = System.currentTimeMillis();
+        try{
+            TypedQuery<PersonEntity> query = em.createQuery("SELECT p FROM Person p WHERE p.name like \"KR%\"", PersonEntity.class);
+            List<PersonEntity> results = query.getResultList();
+
+//            System.out.println(results.size());
+        } catch (Exception e) {
+            e.printStackTrace();
+            return -1;
+        }
+
+        long finish = System.currentTimeMillis();
+        return finish - start;
+    }
+
+    @Override
+    public long runSelectByMultipleParTest() {
+        long start = System.currentTimeMillis();
+        try{
+            TypedQuery<WebpageEntity> query = em.createQuery("SELECT w FROM Webpage w WHERE w.id > 75000 AND w.url LIKE \"%0.html\" AND w.creationDate >= ?1", WebpageEntity.class);
+            query.setParameter(1, localdateToDate(LocalDate.parse("2000-01-01")));
+            List<WebpageEntity> results = query.getResultList();
+
+//            System.out.println(results.size());
+        } catch (Exception e) {
+            e.printStackTrace();
+            return -1;
+        }
+
+        long finish = System.currentTimeMillis();
+        return finish - start;
     }
 
 
@@ -243,7 +276,7 @@ public class ObjectDBAdapter implements DatabaseAdapter{
         }
 
         for (Webpage w : webpages) {
-            WebpageEntity webpageEntity = new WebpageEntity(w.id, w.url, AdapterUtils.localdateToDate(w.creationDate));
+            WebpageEntity webpageEntity = new WebpageEntity(w.id, w.url, localdateToDate(w.creationDate));
             webpageMap.put(w.id, webpageEntity);
             em.getTransaction().begin();
             em.persist(webpageEntity);
@@ -286,7 +319,7 @@ public class ObjectDBAdapter implements DatabaseAdapter{
 
         em.getTransaction().begin();
         for (Webpage w : webpages) {
-            WebpageEntity webpageEntity = new WebpageEntity(w.id, w.url, AdapterUtils.localdateToDate(w.creationDate));
+            WebpageEntity webpageEntity = new WebpageEntity(w.id, w.url, localdateToDate(w.creationDate));
             webpageMap.put(w.id, webpageEntity);
             em.persist(webpageEntity);
 

@@ -24,7 +24,8 @@ public interface DatabaseAdapter {
                        List<Webpage> webpages, List<LikeEdge> likes);
     long runUpdateTest(List<Person> people, List<Webpage> webpages);
     long runDeleteTest(List<Person> people, List<Webpage> webpages);
-    long runSelectByIntParTest();
+    long runSelectByIntTest();
     long runSelectEdgesWithVertexParTest();
     long runSelectByStringWithLike();
+    long runSelectByMultipleParTest();
 }

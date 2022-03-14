@@ -48,11 +48,11 @@ public class Benchmark {
 
 
         List<DatabaseAdapter> createdAdapters = new ArrayList<>();
-//        createdAdapters.add(new MySQLAdapter());
-//        createdAdapters.add(new MongoDBAdapter());
-//        createdAdapters.add(new Neo4jAdapter());
+        createdAdapters.add(new MySQLAdapter());
+        createdAdapters.add(new MongoDBAdapter());
+        createdAdapters.add(new Neo4jAdapter());
         createdAdapters.add(new OrientDBAdapter());
-//        createdAdapters.add(new ObjectDBAdapter());
+        createdAdapters.add(new ObjectDBAdapter());
 
         // Setup - connecting to databases
         for (DatabaseAdapter adapter: createdAdapters) {
@@ -73,54 +73,35 @@ public class Benchmark {
 
         int i = 0;
 
+//        evaluateCRUDTests(i);
+
+        evaluateQueryTests(i);
+
+        closeConnectionsToDatabases();
+    }
+
+    private void evaluateQueryTests(int i) {
+
         // Setup - cleaning databases
 //        cleanDatabases();
 //
-
-//        // CRUD tests
-//        Log.i("Running CRUD test");
+//        // Query tests
+//        createGraphForQueryTests();
 //
-//        Log.i("Insert test");
+//        Log.i("Select by integer test");
 //        for (DatabaseAdapter adapter: adapters) {
-//            long time = adapter.runInsertTest(peopleCRUD, friendsCRUD, webpagesCRUD, likesCRUD);
-//            testReport.insertTestResults.get(i).put(adapter.getDatabaseName(), time);
-//            System.out.println(adapter.getDatabaseName() + ": " + time + " millis");
-//        }
-//
-//        Log.i("Update test");
-//        for (DatabaseAdapter adapter: adapters) {
-//            long time = adapter.runUpdateTest(peopleCRUD, webpagesCRUD);
-//            testReport.updateTestResults.get(i).put(adapter.getDatabaseName(), time);
+//            long time = adapter.runSelectByIntTest();
+//            testReport.selectByIntTestResults.get(i).put(adapter.getDatabaseName(), time);
 //            System.out.println(adapter.getDatabaseName() + ": " + time + " millis");
 //        }
 //
-//        Log.i("Delete test");
+//        Log.i("Select edges by type");
 //        for (DatabaseAdapter adapter: adapters) {
-//            long time = adapter.runDeleteTest(peopleCRUD, webpagesCRUD);
-//            testReport.deleteTestResults.get(i).put(adapter.getDatabaseName(), time);
+//            long time = adapter.runSelectEdgesWithVertexParTest();
+//            testReport.selectEdgesWithVertexParTestResults.get(i).put(adapter.getDatabaseName(), time);
 //            System.out.println(adapter.getDatabaseName() + ": " + time + " millis");
 //        }
-
-        // Setup - cleaning databases
-        cleanDatabases();
-
-        // Query tests
-        createGraphForQueryTests();
-
-//        Log.i("Select by integer parameter test");
-//        for (DatabaseAdapter adapter: adapters) {
-//            long time = adapter.runSelectByIntParTest();
-//            testReport.selectByIntParTestResults.get(i).put(adapter.getDatabaseName(), time);
-//            System.out.println(adapter.getDatabaseName() + ": " + time + " millis");
-//        }
-
-        Log.i("Select edges by type");
-        for (DatabaseAdapter adapter: adapters) {
-            long time = adapter.runSelectEdgesWithVertexParTest();
-            testReport.selectEdgesWithVertexParTestResults.get(i).put(adapter.getDatabaseName(), time);
-            System.out.println(adapter.getDatabaseName() + ": " + time + " millis");
-        }
-
+//
 //        Log.i("Select by like string");
 //        for (DatabaseAdapter adapter: adapters) {
 //            long time = adapter.runSelectByStringWithLike();
@@ -128,7 +109,42 @@ public class Benchmark {
 //            System.out.println(adapter.getDatabaseName() + ": " + time + " millis");
 //        }
 
-        closeConnectionsToDatabases();
+        Log.i("Select by multiple parameters");
+        for (DatabaseAdapter adapter: adapters) {
+            long time = adapter.runSelectByMultipleParTest();
+            testReport.selectByMultipleParTestResult.get(i).put(adapter.getDatabaseName(), time);
+            System.out.println(adapter.getDatabaseName() + ": " + time + " millis");
+        }
+
+    }
+
+    private void evaluateCRUDTests(int i) {
+        // Setup - cleaning databases
+        cleanDatabases();
+
+        // CRUD tests
+        Log.i("Running CRUD test");
+
+        Log.i("Insert test");
+        for (DatabaseAdapter adapter: adapters) {
+            long time = adapter.runInsertTest(peopleCRUD, friendsCRUD, webpagesCRUD, likesCRUD);
+            testReport.insertTestResults.get(i).put(adapter.getDatabaseName(), time);
+            System.out.println(adapter.getDatabaseName() + ": " + time + " millis");
+        }
+
+        Log.i("Update test");
+        for (DatabaseAdapter adapter: adapters) {
+            long time = adapter.runUpdateTest(peopleCRUD, webpagesCRUD);
+            testReport.updateTestResults.get(i).put(adapter.getDatabaseName(), time);
+            System.out.println(adapter.getDatabaseName() + ": " + time + " millis");
+        }
+
+        Log.i("Delete test");
+        for (DatabaseAdapter adapter: adapters) {
+            long time = adapter.runDeleteTest(peopleCRUD, webpagesCRUD);
+            testReport.deleteTestResults.get(i).put(adapter.getDatabaseName(), time);
+            System.out.println(adapter.getDatabaseName() + ": " + time + " millis");
+        }
     }
 
     private void cleanDatabases(){

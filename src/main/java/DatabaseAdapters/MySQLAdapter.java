@@ -215,7 +215,7 @@ public class MySQLAdapter implements DatabaseAdapter {
     }
 
     @Override
-    public long runSelectByIntParTest() {
+    public long runSelectByIntTest() {
         long start = System.currentTimeMillis();
 
         try {
@@ -272,7 +272,7 @@ public class MySQLAdapter implements DatabaseAdapter {
         long start = System.currentTimeMillis();
 
         try {
-            String query = "SELECT * FROM person WHERE p.Name like \"\"";
+            String query = "SELECT * FROM person p WHERE p.Name like \"KR%\"";
 
             Statement stmt = conn.createStatement();
             ResultSet rs = stmt.executeQuery(query);
@@ -284,6 +284,33 @@ public class MySQLAdapter implements DatabaseAdapter {
             }
 
 //            System.out.println(i);
+            stmt.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return -1;
+        }
+
+        long finish = System.currentTimeMillis();
+        return finish - start;
+    }
+
+    @Override
+    public long runSelectByMultipleParTest() {
+        long start = System.currentTimeMillis();
+
+        try {
+            String query = "SELECT * from Webpage w WHERE w.ID > 75000 AND w.Url like '%0.html' AND w.Creation_Date  >= '2000-01-01'";
+
+            Statement stmt = conn.createStatement();
+            ResultSet rs = stmt.executeQuery(query);
+
+            int i = 0;
+
+            while (rs.next()) {
+                i++;
+            }
+
+            System.out.println(i);
             stmt.close();
         } catch (Exception e) {
             e.printStackTrace();

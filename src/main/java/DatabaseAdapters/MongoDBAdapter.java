@@ -6,8 +6,8 @@ import Objects.Person;
 import Objects.Webpage;
 import com.mongodb.*;
 
-import java.io.BufferedWriter;
-import java.io.FileWriter;
+
+import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -213,7 +213,7 @@ public class MongoDBAdapter implements DatabaseAdapter {
     }
 
     @Override
-    public long runSelectByIntParTest() {
+    public long runSelectByIntTest() {
         long start = System.currentTimeMillis();
 
         try{
@@ -245,8 +245,6 @@ public class MongoDBAdapter implements DatabaseAdapter {
         long start = System.currentTimeMillis();
 
         try{
-            BufferedWriter writer = new BufferedWriter(new FileWriter("tmp", true));
-            writer.append("=========================");
             DBCollection peopleCollection = database.getCollection("People");
             DBCollection webpagesCollection = database.getCollection("Webpages");
 
@@ -259,10 +257,8 @@ public class MongoDBAdapter implements DatabaseAdapter {
             while (cursor.hasNext()) {
                 BasicDBObject personObject = (BasicDBObject) cursor.next();
                 BasicDBList likes = (BasicDBList) personObject.get("likes");
-                Long id = personObject.getLong("id");
                 for (Object l : likes.toArray()) {
                     Long likeWebpageId = (Long) l;
-                    writer.append(id + "+" + likeWebpageId + ",");
                     if(webpageUrlMap.containsKey(likeWebpageId))
                         continue;
 
@@ -280,7 +276,6 @@ public class MongoDBAdapter implements DatabaseAdapter {
                 cursor.next();
             }
 
-            writer.close();
 //            System.out.println(i);
         } catch (Exception e) {
             e.printStackTrace();
@@ -293,7 +288,61 @@ public class MongoDBAdapter implements DatabaseAdapter {
 
     @Override
     public long runSelectByStringWithLike() {
-        return 0;
+        long start = System.currentTimeMillis();
+
+        try{
+            DBCollection peopleCollection = database.getCollection("People");
+
+            BasicDBObject searchQuery = new BasicDBObject();
+            searchQuery.put("name", new BasicDBObject("$regex", "^KR.*"));
+            DBCursor cursor = peopleCollection.find(searchQuery);
+
+            int i = 0;
+
+            while (cursor.hasNext()) {
+                cursor.next();
+                i++;
+            }
+
+//            System.out.println(i);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return -1;
+        }
+
+        long finish = System.currentTimeMillis();
+        return finish - start;
+    }
+
+    @Override
+    public long runSelectByMultipleParTest() {
+        long start = System.currentTimeMillis();
+        //{id: {"$gte": 75000}, url: {"$regex": ".*0\.html$"}, creation_date: {"$gte": new Date("2000-01-01")}}
+
+        try{
+            DBCollection webpagesCollection = database.getCollection("Webpages");
+
+            BasicDBObject searchQuery = new BasicDBObject();
+            searchQuery.put("id", new BasicDBObject("$gt", 75000));
+            searchQuery.put("url", new BasicDBObject("$regex", ".*0\\.html$"));
+            searchQuery.put("creation_date", new BasicDBObject("$gte", LocalDate.parse("2000-01-01")));
+            DBCursor cursor = webpagesCollection.find(searchQuery);
+
+            int i = 0;
+
+            while (cursor.hasNext()) {
+                cursor.next();
+                i++;
+            }
+
+            System.out.println(i);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return -1;
+        }
+
+        long finish = System.currentTimeMillis();
+        return finish - start;
     }
 
     private void insertData(List<Person> people, List<FriendEdge> friends, List<Webpage> webpages, List<LikeEdge> likes) {
