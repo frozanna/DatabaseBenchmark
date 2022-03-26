@@ -9,9 +9,11 @@ public class TestReport {
     public final String updateTestName = "UpdateTest";
     public final String deleteTestName = "DeleteTest";
     public final String selectByIntTestName = "SelectByIntegerTest";
-    public final String selectEdgesWithVertexParTestName = "SelectEdgesWithVertexParameters";
-    public final String selectByStringWithLikeTestName = "SelectByStringWithLike";
-    public final String selectByMultipleParTestName = "SelectByMultipleParameters";
+    public final String selectEdgesWithVertexParTestName = "SelectEdgesWithVertexParametersTest";
+    public final String selectByStringWithLikeTestName = "SelectByStringWithLikeTest";
+    public final String selectByMultipleParTestName = "SelectByMultipleParametersTest";
+    public final String countNeighboursTestName = "CountNeighboursTest";
+    public final String groupByTestName = "GroupByTest";
 
     public final List<String> databasesNames = new ArrayList<>();
     public final List<Map<String, Long>> insertTestResults = new ArrayList<>();
@@ -22,6 +24,8 @@ public class TestReport {
     public final List<Map<String, Long>> selectEdgesWithVertexParTestResults = new ArrayList<>();
     public final List<Map<String, Long>> selectByStringWithLikeTestResult = new ArrayList<>();
     public final List<Map<String, Long>> selectByMultipleParTestResult = new ArrayList<>();
+    public final List<Map<String, Long>> countNeighboursTestResult = new ArrayList<>();
+    public final List<Map<String, Long>> groupByTestResult = new ArrayList<>();
 
     public TestReport(int testRunsNumber){
         for (int i = 0; i < testRunsNumber; i ++){
@@ -33,6 +37,8 @@ public class TestReport {
             selectEdgesWithVertexParTestResults.add(new HashMap<>());
             selectByStringWithLikeTestResult.add(new HashMap<>());
             selectByMultipleParTestResult.add(new HashMap<>());
+            countNeighboursTestResult.add(new HashMap<>());
+            groupByTestResult.add(new HashMap<>());
         }
     }
 }

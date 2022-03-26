@@ -8,10 +8,7 @@ import Objects.Person;
 import Objects.Webpage;
 
 
-import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
-import javax.persistence.Persistence;
-import javax.persistence.TypedQuery;
+import javax.persistence.*;
 import java.time.LocalDate;
 import java.util.Date;
 import java.util.HashMap;
@@ -20,7 +17,7 @@ import java.util.Map;
 
 import static DatabaseAdapters.AdapterUtils.localdateToDate;
 
-public class ObjectDBAdapter implements DatabaseAdapter{
+public class ObjectDBAdapter implements DatabaseAdapter {
     private EntityManagerFactory emf;
     private EntityManager em;
 
@@ -209,18 +206,9 @@ public class ObjectDBAdapter implements DatabaseAdapter{
     public long runSelectEdgesWithVertexParTest() {
         long start = System.currentTimeMillis();
         try{
-            TypedQuery<PersonEntity> query = em.createQuery("SELECT p FROM Person p", PersonEntity.class);
-            List<PersonEntity> results = query.getResultList();
-
-            int i = 0;
-
-            for (PersonEntity p : results) {
-                for (WebpageEntity w : p.getLikes()) {
-                    i++;
-                }
-            }
-
-//            System.out.println(i);
+            Query query = em.createQuery("SELECT p.surname, w.url FROM Person p INNER JOIN p.likes w");
+            List results = query.getResultList();
+//            System.out.println(results.size());
         } catch (Exception e) {
             e.printStackTrace();
             return -1;
@@ -255,6 +243,39 @@ public class ObjectDBAdapter implements DatabaseAdapter{
             query.setParameter(1, localdateToDate(LocalDate.parse("2000-01-01")));
             List<WebpageEntity> results = query.getResultList();
 
+//            System.out.println(results.size());
+        } catch (Exception e) {
+            e.printStackTrace();
+            return -1;
+        }
+
+        long finish = System.currentTimeMillis();
+        return finish - start;
+    }
+
+    @Override
+    public long runCountNeighboursTest() {
+        long start = System.currentTimeMillis();
+        try{
+            Query query = em.createQuery("SELECT p.id, (p.friends.size() + p.likes.size()) AS NeighboursCount FROM Person p");
+            List results = query.getResultList();
+
+//            System.out.println(results.size());
+        } catch (Exception e) {
+            e.printStackTrace();
+            return -1;
+        }
+
+        long finish = System.currentTimeMillis();
+        return finish - start;
+    }
+
+    @Override
+    public long runGroupByTest() {
+        long start = System.currentTimeMillis();
+        try{
+            Query query = em.createQuery("SELECT p.surname, AVG(p.age) AS AvgAge FROM Person p GROUP BY p.surname");
+            List results = query.getResultList();
 //            System.out.println(results.size());
         } catch (Exception e) {
             e.printStackTrace();

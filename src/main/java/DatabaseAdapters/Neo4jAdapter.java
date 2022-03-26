@@ -15,7 +15,7 @@ public class Neo4jAdapter implements DatabaseAdapter {
 
     @Override
     public String getDatabaseName() {
-        return "Neo3j";
+        return "Neo4j";
     }
 
     @Override
@@ -317,7 +317,67 @@ public class Neo4jAdapter implements DatabaseAdapter {
                 i++;
             }
 
-            System.out.println(i);
+//            System.out.println(i);
+            tx.close();
+            session.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return -1;
+        }
+
+
+        long finish = System.currentTimeMillis();
+        return finish - start;
+    }
+
+    @Override
+    public long runCountNeighboursTest() {
+        long start = System.currentTimeMillis();
+
+        try{
+            Session session = driver.session();
+            Transaction tx = session.beginTransaction();
+            int i = 0;
+
+            String query = "MATCH (p:Person)-[r]->() RETURN p.ID, count(r) AS NeighboursCount";
+
+            Result result = tx.run(query);
+            while (result.hasNext()) {
+                result.next();
+                i++;
+            }
+
+//            System.out.println(i);
+            tx.close();
+            session.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return -1;
+        }
+
+
+        long finish = System.currentTimeMillis();
+        return finish - start;
+    }
+
+    @Override
+    public long runGroupByTest() {
+        long start = System.currentTimeMillis();
+
+        try{
+            Session session = driver.session();
+            Transaction tx = session.beginTransaction();
+            int i = 0;
+
+            String query = "MATCH (p:Person) RETURN p.Surname, AVG(toFloat(p.Age)) As AvgAge";
+
+            Result result = tx.run(query);
+            while (result.hasNext()) {
+                result.next();
+                i++;
+            }
+
+//            System.out.println(i);
             tx.close();
             session.close();
         } catch (Exception e) {

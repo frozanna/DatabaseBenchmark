@@ -272,7 +272,61 @@ public class OrientDBAdapter implements DatabaseAdapter {
 
             rs.close();
 
-            System.out.println(i);
+//            System.out.println(i);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return -1;
+        }
+
+        long finish = System.currentTimeMillis();
+        return finish - start;
+    }
+
+    @Override
+    public long runCountNeighboursTest() {
+        long start = System.currentTimeMillis();
+
+        try{
+            int i = 0;
+
+            String query = "SELECT ID, OUT().size() FROM Person";
+            OResultSet rs = db.query(query);
+
+            while (rs.hasNext()) {
+                rs.next();
+                i++;
+            }
+
+            rs.close();
+
+//            System.out.println(i);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return -1;
+        }
+
+        long finish = System.currentTimeMillis();
+        return finish - start;
+    }
+
+    @Override
+    public long runGroupByTest() {
+        long start = System.currentTimeMillis();
+
+        try{
+            int i = 0;
+
+            String query = "SELECT Surname, AVG(Age.asFloat()) AS AvgAge FROM Person GROUP BY Surname";
+            OResultSet rs = db.query(query);
+
+            while (rs.hasNext()) {
+                rs.next();
+                i++;
+            }
+
+            rs.close();
+
+//            System.out.println(i);
         } catch (Exception e) {
             e.printStackTrace();
             return -1;

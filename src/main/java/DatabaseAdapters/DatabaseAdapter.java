@@ -28,4 +28,6 @@ public interface DatabaseAdapter {
     long runSelectEdgesWithVertexParTest();
     long runSelectByStringWithLike();
     long runSelectByMultipleParTest();
+    long runCountNeighboursTest();
+    long runGroupByTest();
 }

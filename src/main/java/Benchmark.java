@@ -48,10 +48,10 @@ public class Benchmark {
 
 
         List<DatabaseAdapter> createdAdapters = new ArrayList<>();
-        createdAdapters.add(new MySQLAdapter());
-        createdAdapters.add(new MongoDBAdapter());
-        createdAdapters.add(new Neo4jAdapter());
-        createdAdapters.add(new OrientDBAdapter());
+//        createdAdapters.add(new MySQLAdapter());
+//        createdAdapters.add(new MongoDBAdapter());
+//        createdAdapters.add(new Neo4jAdapter());
+//        createdAdapters.add(new OrientDBAdapter());
         createdAdapters.add(new ObjectDBAdapter());
 
         // Setup - connecting to databases
@@ -95,12 +95,12 @@ public class Benchmark {
 //            System.out.println(adapter.getDatabaseName() + ": " + time + " millis");
 //        }
 //
-//        Log.i("Select edges by type");
-//        for (DatabaseAdapter adapter: adapters) {
-//            long time = adapter.runSelectEdgesWithVertexParTest();
-//            testReport.selectEdgesWithVertexParTestResults.get(i).put(adapter.getDatabaseName(), time);
-//            System.out.println(adapter.getDatabaseName() + ": " + time + " millis");
-//        }
+        Log.i("Select edges by type with vertex parameters");
+        for (DatabaseAdapter adapter: adapters) {
+            long time = adapter.runSelectEdgesWithVertexParTest();
+            testReport.selectEdgesWithVertexParTestResults.get(i).put(adapter.getDatabaseName(), time);
+            System.out.println(adapter.getDatabaseName() + ": " + time + " millis");
+        }
 //
 //        Log.i("Select by like string");
 //        for (DatabaseAdapter adapter: adapters) {
@@ -108,14 +108,27 @@ public class Benchmark {
 //            testReport.selectByStringWithLikeTestResult.get(i).put(adapter.getDatabaseName(), time);
 //            System.out.println(adapter.getDatabaseName() + ": " + time + " millis");
 //        }
-
-        Log.i("Select by multiple parameters");
-        for (DatabaseAdapter adapter: adapters) {
-            long time = adapter.runSelectByMultipleParTest();
-            testReport.selectByMultipleParTestResult.get(i).put(adapter.getDatabaseName(), time);
-            System.out.println(adapter.getDatabaseName() + ": " + time + " millis");
-        }
-
+//
+//        Log.i("Select by multiple parameters");
+//        for (DatabaseAdapter adapter: adapters) {
+//            long time = adapter.runSelectByMultipleParTest();
+//            testReport.selectByMultipleParTestResult.get(i).put(adapter.getDatabaseName(), time);
+//            System.out.println(adapter.getDatabaseName() + ": " + time + " millis");
+//        }
+//
+//        Log.i("Count neighbours of person vertex");
+//        for (DatabaseAdapter adapter: adapters) {
+//            long time = adapter.runCountNeighboursTest();
+//            testReport.countNeighboursTestResult.get(i).put(adapter.getDatabaseName(), time);
+//            System.out.println(adapter.getDatabaseName() + ": " + time + " millis");
+//        }
+//
+//        Log.i("Group by surname and select average age");
+//        for (DatabaseAdapter adapter: adapters) {
+//            long time = adapter.runGroupByTest();
+//            testReport.groupByTestResult.get(i).put(adapter.getDatabaseName(), time);
+//            System.out.println(adapter.getDatabaseName() + ": " + time + " millis");
+//        }
     }
 
     private void evaluateCRUDTests(int i) {

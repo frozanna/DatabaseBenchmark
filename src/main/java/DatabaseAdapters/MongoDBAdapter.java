@@ -5,17 +5,19 @@ import Objects.LikeEdge;
 import Objects.Person;
 import Objects.Webpage;
 import com.mongodb.*;
-
+import com.mongodb.client.AggregateIterable;
+import com.mongodb.client.MongoCollection;
+import com.mongodb.client.MongoDatabase;
+import org.bson.Document;
 
 import java.time.LocalDate;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class MongoDBAdapter implements DatabaseAdapter {
     private MongoClient mongoClient;
     private DB database;
+    private MongoDatabase mongoDatabase;
 
     @Override
     public String getDatabaseName() {
@@ -27,6 +29,7 @@ public class MongoDBAdapter implements DatabaseAdapter {
         try {
             mongoClient = new MongoClient();
             database = mongoClient.getDB("SocialNetwork");
+            mongoDatabase = mongoClient.getDatabase("SocialNetwork");
         } catch (Exception e) {
             e.printStackTrace();
             return false;
@@ -317,7 +320,6 @@ public class MongoDBAdapter implements DatabaseAdapter {
     @Override
     public long runSelectByMultipleParTest() {
         long start = System.currentTimeMillis();
-        //{id: {"$gte": 75000}, url: {"$regex": ".*0\.html$"}, creation_date: {"$gte": new Date("2000-01-01")}}
 
         try{
             DBCollection webpagesCollection = database.getCollection("Webpages");
@@ -335,7 +337,56 @@ public class MongoDBAdapter implements DatabaseAdapter {
                 i++;
             }
 
-            System.out.println(i);
+//            System.out.println(i);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return -1;
+        }
+
+        long finish = System.currentTimeMillis();
+        return finish - start;
+    }
+
+    @Override
+    public long runCountNeighboursTest() {
+        long start = System.currentTimeMillis();
+
+        try{
+            MongoCollection<Document> peopleCollection = mongoDatabase.getCollection("People");
+
+            AggregateIterable<Document> result = peopleCollection.aggregate(Arrays.asList(new Document("$project",
+                    new Document("id", "$id")
+                            .append("neighbour_count",
+                                    new Document("$sum", Arrays.asList(new Document("$size", "$likes"),
+                                            new Document("$size", "$friends")))))));
+
+            int i = 0;
+            for (Document document : result) i++;
+
+//            System.out.println(i);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return -1;
+        }
+
+        long finish = System.currentTimeMillis();
+        return finish - start;
+    }
+
+    @Override
+    public long runGroupByTest() {
+        long start = System.currentTimeMillis();
+
+        try{
+            MongoCollection<Document> peopleCollection = mongoDatabase.getCollection("People");
+
+            AggregateIterable<Document> result = peopleCollection.aggregate(Arrays.asList(new Document("$group",
+                    new Document("_id", "$surname").append("avgAge", new Document("$avg", "$age")))));
+
+            int i = 0;
+            for (Document document : result) i++;
+
+//            System.out.println(i);
         } catch (Exception e) {
             e.printStackTrace();
             return -1;

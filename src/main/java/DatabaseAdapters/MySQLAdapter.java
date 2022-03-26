@@ -310,7 +310,67 @@ public class MySQLAdapter implements DatabaseAdapter {
                 i++;
             }
 
-            System.out.println(i);
+//            System.out.println(i);
+            stmt.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return -1;
+        }
+
+        long finish = System.currentTimeMillis();
+        return finish - start;
+    }
+
+    @Override
+    public long runCountNeighboursTest() {
+        long start = System.currentTimeMillis();
+
+        try {
+            String query = "SELECT p.ID, COUNT(f.ID) + COUNT(l.ID) AS NeighboursCount FROM\n" +
+                                "person p\n" +
+                                "LEFT JOIN friends f\n" +
+                                "ON p.ID = f.Person1_ID OR p.ID = f.Person2_ID\n" +
+                                "LEFT JOIN likes l\n" +
+                                "ON p.ID = l.Person_ID\n" +
+                                "GROUP BY p.ID";
+
+            Statement stmt = conn.createStatement();
+            ResultSet rs = stmt.executeQuery(query);
+
+            int i = 0;
+
+            while (rs.next()) {
+                i++;
+            }
+
+//            System.out.println(i);
+            stmt.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return -1;
+        }
+
+        long finish = System.currentTimeMillis();
+        return finish - start;
+    }
+
+    @Override
+    public long runGroupByTest() {
+        long start = System.currentTimeMillis();
+
+        try {
+            String query = "SELECT p.Surname, AVG(p.Age) AS AvgAge FROM person p GROUP BY p.Surname";
+
+            Statement stmt = conn.createStatement();
+            ResultSet rs = stmt.executeQuery(query);
+
+            int i = 0;
+
+            while (rs.next()) {
+                i++;
+            }
+
+//            System.out.println(i);
             stmt.close();
         } catch (Exception e) {
             e.printStackTrace();
