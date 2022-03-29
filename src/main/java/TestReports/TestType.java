@@ -1,4 +1,4 @@
-package TestReport;
+package TestReports;
 
 public enum TestType {
     INSERT("InsertTest", TestCategory.CRUD),

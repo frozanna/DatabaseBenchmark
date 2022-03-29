@@ -1,4 +1,4 @@
-package TestReport;
+package TestReports;
 
 public enum TestCategory {
     CRUD,

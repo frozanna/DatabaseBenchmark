@@ -6,9 +6,8 @@ import Objects.FriendEdge;
 import Objects.LikeEdge;
 import Objects.Person;
 import Objects.Webpage;
-import TestReport.TestReport;
-import TestReport.TestResults;
-import TestReport.TestType;
+import TestReports.TestReport;
+import TestReports.TestType;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;

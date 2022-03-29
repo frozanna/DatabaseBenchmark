@@ -1,4 +1,4 @@
-package TestReport;
+package TestReports;
 
 import DatabaseAdapters.DatabaseAdapter;
 import Log.Log;
