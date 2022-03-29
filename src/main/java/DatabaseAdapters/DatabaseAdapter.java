@@ -24,10 +24,12 @@ public interface DatabaseAdapter {
                        List<Webpage> webpages, List<LikeEdge> likes);
     long runUpdateTest(List<Person> people, List<Webpage> webpages);
     long runDeleteTest(List<Person> people, List<Webpage> webpages);
-    long runSelectByIntTest();
-    long runSelectEdgesWithVertexParTest();
-    long runSelectByStringWithLike();
-    long runSelectByMultipleParTest();
+
+    long runSelectByIntegerTest();
+    long runSelectEdgesWithVertexParametersTest();
+    long runSelectByStringWithLikeTest();
+    long runSelectByMultipleParametersTest();
+
     long runCountNeighboursTest();
     long runGroupByTest();
 }

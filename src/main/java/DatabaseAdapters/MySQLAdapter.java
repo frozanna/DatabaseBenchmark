@@ -51,7 +51,6 @@ public class MySQLAdapter implements DatabaseAdapter {
         return true;
     }
 
-
     @Override
     public boolean createGraph(List<Person> people, List<FriendEdge> friends, List<Webpage> webpages, List<LikeEdge> likes) {
         try{
@@ -215,7 +214,7 @@ public class MySQLAdapter implements DatabaseAdapter {
     }
 
     @Override
-    public long runSelectByIntTest() {
+    public long runSelectByIntegerTest() {
         long start = System.currentTimeMillis();
 
         try {
@@ -228,7 +227,7 @@ public class MySQLAdapter implements DatabaseAdapter {
 
             while (rs.next()) {  i++; }
 
-            System.out.println(i);
+//            System.out.println(i);
 
             stmt.close();
         } catch (Exception e) {
@@ -241,7 +240,7 @@ public class MySQLAdapter implements DatabaseAdapter {
     }
 
     @Override
-    public long runSelectEdgesWithVertexParTest() {
+    public long runSelectEdgesWithVertexParametersTest() {
         long start = System.currentTimeMillis();
 
         try {
@@ -268,7 +267,7 @@ public class MySQLAdapter implements DatabaseAdapter {
     }
 
     @Override
-    public long runSelectByStringWithLike() {
+    public long runSelectByStringWithLikeTest() {
         long start = System.currentTimeMillis();
 
         try {
@@ -295,7 +294,7 @@ public class MySQLAdapter implements DatabaseAdapter {
     }
 
     @Override
-    public long runSelectByMultipleParTest() {
+    public long runSelectByMultipleParametersTest() {
         long start = System.currentTimeMillis();
 
         try {

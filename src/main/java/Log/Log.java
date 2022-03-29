@@ -1,3 +1,5 @@
+package Log;
+
 public class Log {
     public static final String ANSI_RESET = "\u001B[0m";
     public static final String ANSI_BLACK = "\u001B[30m";
@@ -29,4 +31,8 @@ public class Log {
         System.out.println(ANSI_YELLOW + "WARNING: " + message + ANSI_RESET);
     }
 
+    //message
+    public static void m(String message) {
+        System.out.println(message);
+    }
 }

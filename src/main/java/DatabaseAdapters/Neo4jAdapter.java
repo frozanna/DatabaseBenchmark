@@ -213,7 +213,7 @@ public class Neo4jAdapter implements DatabaseAdapter {
     }
 
     @Override
-    public long runSelectByIntTest() {
+    public long runSelectByIntegerTest() {
         long start = System.currentTimeMillis();
 
         try{
@@ -242,7 +242,7 @@ public class Neo4jAdapter implements DatabaseAdapter {
     }
 
     @Override
-    public long runSelectEdgesWithVertexParTest() {
+    public long runSelectEdgesWithVertexParametersTest() {
         long start = System.currentTimeMillis();
 
         try{
@@ -271,7 +271,7 @@ public class Neo4jAdapter implements DatabaseAdapter {
     }
 
     @Override
-    public long runSelectByStringWithLike() {
+    public long runSelectByStringWithLikeTest() {
         long start = System.currentTimeMillis();
 
         try{
@@ -301,7 +301,7 @@ public class Neo4jAdapter implements DatabaseAdapter {
     }
 
     @Override
-    public long runSelectByMultipleParTest() {
+    public long runSelectByMultipleParametersTest() {
         long start = System.currentTimeMillis();
 
         try{

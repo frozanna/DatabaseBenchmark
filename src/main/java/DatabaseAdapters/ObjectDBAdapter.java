@@ -10,7 +10,6 @@ import Objects.Webpage;
 
 import javax.persistence.*;
 import java.time.LocalDate;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -186,7 +185,7 @@ public class ObjectDBAdapter implements DatabaseAdapter {
     }
 
     @Override
-    public long runSelectByIntTest() {
+    public long runSelectByIntegerTest() {
         long start = System.currentTimeMillis();
         try{
             TypedQuery<PersonEntity> query = em.createQuery("SELECT p FROM Person p WHERE p.age > 30", PersonEntity.class);
@@ -203,7 +202,7 @@ public class ObjectDBAdapter implements DatabaseAdapter {
     }
 
     @Override
-    public long runSelectEdgesWithVertexParTest() {
+    public long runSelectEdgesWithVertexParametersTest() {
         long start = System.currentTimeMillis();
         try{
             Query query = em.createQuery("SELECT p.surname, w.url FROM Person p INNER JOIN p.likes w");
@@ -219,7 +218,7 @@ public class ObjectDBAdapter implements DatabaseAdapter {
     }
 
     @Override
-    public long runSelectByStringWithLike() {
+    public long runSelectByStringWithLikeTest() {
         long start = System.currentTimeMillis();
         try{
             TypedQuery<PersonEntity> query = em.createQuery("SELECT p FROM Person p WHERE p.name like \"KR%\"", PersonEntity.class);
@@ -236,7 +235,7 @@ public class ObjectDBAdapter implements DatabaseAdapter {
     }
 
     @Override
-    public long runSelectByMultipleParTest() {
+    public long runSelectByMultipleParametersTest() {
         long start = System.currentTimeMillis();
         try{
             TypedQuery<WebpageEntity> query = em.createQuery("SELECT w FROM Webpage w WHERE w.id > 75000 AND w.url LIKE \"%0.html\" AND w.creationDate >= ?1", WebpageEntity.class);
