@@ -325,14 +325,15 @@ public class MySQLAdapter implements DatabaseAdapter {
         long start = System.currentTimeMillis();
 
         try {
-            String query = "SELECT p.ID, COUNT(f.ID) + COUNT(l.ID) AS NeighboursCount FROM\n" +
-                                "person p\n" +
-                                "LEFT JOIN friends f\n" +
-                                "ON p.ID = f.Person1_ID OR p.ID = f.Person2_ID\n" +
-                                "LEFT JOIN likes l\n" +
-                                "ON p.ID = l.Person_ID\n" +
-                                "GROUP BY p.ID";
-
+            String query = "SELECT p.ID, COUNT(distinct l.ID) + COUNT(distinct f1.ID) + COUNT(distinct f2.ID) AS NeighboursCount\n" +
+                    "FROM person p\n" +
+                    "LEFT JOIN friends f1\n" +
+                    "ON f1.Person1_ID = p.ID\n" +
+                    "LEFT JOIN friends f2\n" +
+                    "ON f2.Person2_ID = p.ID\n" +
+                    "LEFT JOIN likes l\n" +
+                    "ON p.ID = l.Person_ID\n" +
+                    "GROUP BY p.ID";
             Statement stmt = conn.createStatement();
             ResultSet rs = stmt.executeQuery(query);
 

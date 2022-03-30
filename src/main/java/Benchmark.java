@@ -92,10 +92,9 @@ public class Benchmark {
 //        // Query tests
 //        createGraphForQueryTests();
 
-        Log.i("Running query test");
+        Log.i("Running query tests");
 
         try {
-
             for (TestType testType : Arrays.stream(TestType.values()).filter(x -> !x.isCRUDTest()).collect(Collectors.toList())) {
                 Log.i(testType.toString());
                 TestReport report = TestReport.createTestReportForDatabases(testType, adapters);
@@ -104,7 +103,7 @@ public class Benchmark {
                         Method method = DatabaseAdapter.class.getMethod("run" + testType);
                         long time = (Long) method.invoke(adapter);
                         report.addResult(adapter, time);
-                        Log.m(adapter.getDatabaseName() + ": " + time + " millis");
+                        Log.m(adapter.getDatabaseName() + ": " + time + " ms");
                     }
                 }
                 testReports.add(report);
@@ -165,7 +164,6 @@ public class Benchmark {
                 Log.m(adapter.getDatabaseName() + ": " + time + " millis");
             }
         }
-
         testReports.add(deleteReport);
     }
 
