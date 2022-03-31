@@ -76,7 +76,7 @@ public class Benchmark {
     public void evaluate(){
         setup();
 
-//        evaluateCRUDTests(i);
+        evaluateCRUDTests();
 
         evaluateQueryTests();
 
@@ -87,10 +87,10 @@ public class Benchmark {
 
     private void evaluateQueryTests() {
         // Setup - cleaning databases
-//        cleanDatabases();
-//
-//        // Query tests
-//        createGraphForQueryTests();
+        cleanDatabases();
+
+        // Query tests
+        createGraphForQueryTests();
 
         Log.i("Running query tests");
 
@@ -133,38 +133,36 @@ public class Benchmark {
         // CRUD tests
         Log.i("Running CRUD test");
 
-        Log.i("Insert test");
         TestReport insertReport = TestReport.createTestReportForDatabases(TestType.INSERT, adapters);
-        for (DatabaseAdapter adapter: adapters) {
-            for (int i = 0; i < testRunCount ; i ++) {
-                long time = adapter.runInsertTest(peopleCRUD, friendsCRUD, webpagesCRUD, likesCRUD);
-                insertReport.addResult(adapter, time);
-                Log.m(adapter.getDatabaseName() + ": " + time + " millis");
-            }
-        }
-        testReports.add(insertReport);
-
-        Log.i("Update test");
         TestReport updateReport = TestReport.createTestReportForDatabases(TestType.UPDATE, adapters);
-        for (DatabaseAdapter adapter: adapters) {
-            for (int i = 0; i < testRunCount ; i ++) {
-                long time = adapter.runUpdateTest(peopleCRUD, webpagesCRUD);
-                insertReport.addResult(adapter, time);
-                Log.m(adapter.getDatabaseName() + ": " + time + " millis");
-            }
-        }
-        testReports.add(updateReport);
-
-        Log.i("Delete test");
         TestReport deleteReport = TestReport.createTestReportForDatabases(TestType.DELETE, adapters);
+
         for (DatabaseAdapter adapter: adapters) {
             for (int i = 0; i < testRunCount ; i ++) {
-                long time = adapter.runDeleteTest(peopleCRUD, webpagesCRUD);
-                insertReport.addResult(adapter, time);
-                Log.m(adapter.getDatabaseName() + ": " + time + " millis");
+                long insertTime = adapter.runInsertTest(peopleCRUD, friendsCRUD, webpagesCRUD, likesCRUD);
+                insertReport.addResult(adapter, insertTime);
+                Log.i("Insert test");
+                Log.m(adapter.getDatabaseName() + ": " + insertTime + " millis");
+
+                long updateTime = adapter.runUpdateTest(peopleCRUD, webpagesCRUD);
+                updateReport.addResult(adapter, updateTime);
+                Log.i("Update test");
+                Log.m(adapter.getDatabaseName() + ": " + updateTime + " millis");
+
+                long deleteTime = adapter.runDeleteTest(peopleCRUD, webpagesCRUD);
+                deleteReport.addResult(adapter, deleteTime);
+                Log.i("Delete test");
+                Log.m(adapter.getDatabaseName() + ": " + deleteTime + " millis");
             }
+
+            adapter.deleteGraph();
         }
+
+
+        testReports.add(insertReport);
+        testReports.add(updateReport);
         testReports.add(deleteReport);
+
     }
 
     private void cleanDatabases() {
