@@ -449,6 +449,14 @@ public class Neo4jAdapter implements DatabaseAdapter {
             tx.close();
         }
 
+
+        String query = "CREATE BTREE INDEX WebpageIndex IF NOT EXISTS FOR (w:Webpage) ON w.ID";
+        Transaction tx = session.beginTransaction();
+        tx.run(query);
+        query = "CREATE BTREE INDEX PersonIndex IF NOT EXISTS FOR (p:Person) ON p.ID";
+        tx.run(query);
+        tx.commit();
+
         session.close();
     }
 
@@ -541,6 +549,11 @@ public class Neo4jAdapter implements DatabaseAdapter {
             } else
                 i++;
         }
+
+        query = "CREATE BTREE INDEX WebpageIndex IF NOT EXISTS FOR (w:Webpage) ON w.ID";
+        tx.run(query);
+        query = "CREATE BTREE INDEX PersonIndex IF NOT EXISTS FOR (p:Person) ON p.ID";
+        tx.run(query);
 
         tx.commit();
         tx.close();

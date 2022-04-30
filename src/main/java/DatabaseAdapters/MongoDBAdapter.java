@@ -43,7 +43,7 @@ public class MongoDBAdapter implements DatabaseAdapter {
     @Override
     public boolean createGraph(List<Person> people, List<FriendEdge> friends, List<Webpage> webpages, List<LikeEdge> likes) {
         try {
-            batchInsertData(people, friends, webpages, likes, 1000);
+            batchInsertData(people, friends, webpages, likes, 5000);
         } catch (Exception e) {
             e.printStackTrace();
             return false;
@@ -475,7 +475,6 @@ public class MongoDBAdapter implements DatabaseAdapter {
                 .append("sex", p.sex)
                 .append("age", p.age)
                 .append("friends", friends)
-                .append("friendsWith", friends)
                 .append("likes", likes);
 
         return person;
