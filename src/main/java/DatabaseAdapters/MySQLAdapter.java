@@ -1,10 +1,10 @@
 package DatabaseAdapters;
 
-import DataReaders.SocialNetworkData;
-import Objects.FriendEdge;
-import Objects.LikeEdge;
-import Objects.Person;
-import Objects.Webpage;
+import Data.SocialNetworkData;
+import Data.FriendEdge;
+import Data.LikeEdge;
+import Data.Person;
+import Data.Webpage;
 
 import java.sql.*;
 import java.util.List;

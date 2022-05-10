@@ -1,12 +1,12 @@
 package DatabaseAdapters;
 
-import DataReaders.SocialNetworkData;
+import Data.SocialNetworkData;
 import DatabaseAdapters.ObjectDBEntities.PersonEntity;
 import DatabaseAdapters.ObjectDBEntities.WebpageEntity;
-import Objects.FriendEdge;
-import Objects.LikeEdge;
-import Objects.Person;
-import Objects.Webpage;
+import Data.FriendEdge;
+import Data.LikeEdge;
+import Data.Person;
+import Data.Webpage;
 
 
 import javax.persistence.*;

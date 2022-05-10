@@ -1,4 +1,4 @@
-package Objects;
+package Data;
 
 public class LikeEdge {
     public long id;

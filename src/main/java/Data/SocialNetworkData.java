@@ -1,9 +1,4 @@
-package DataReaders;
-
-import Objects.FriendEdge;
-import Objects.LikeEdge;
-import Objects.Person;
-import Objects.Webpage;
+package Data;
 
 import java.util.List;
 

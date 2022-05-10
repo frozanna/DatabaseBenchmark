@@ -1,9 +1,6 @@
 package DataReaders;
 
-import Objects.FriendEdge;
-import Objects.LikeEdge;
-import Objects.Person;
-import Objects.Webpage;
+import Data.*;
 
 import java.io.*;
 import java.time.LocalDate;

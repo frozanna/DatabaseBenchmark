@@ -1,7 +1,4 @@
-package Objects;
-
-import java.util.HashMap;
-import java.util.Map;
+package Data;
 
 public class Person {
     public long id;

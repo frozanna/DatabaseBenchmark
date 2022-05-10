@@ -1,12 +1,8 @@
 import DataReaders.CSVDataReader;
 import DataReaders.DataReader;
-import DataReaders.SocialNetworkData;
+import Data.SocialNetworkData;
 import DatabaseAdapters.*;
 import Log.Log;
-import Objects.FriendEdge;
-import Objects.LikeEdge;
-import Objects.Person;
-import Objects.Webpage;
 import TestReports.TestReport;
 import TestReports.TestType;
 

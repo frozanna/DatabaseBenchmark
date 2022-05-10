@@ -1,16 +1,15 @@
 package DatabaseAdapters;
 
-import DataReaders.SocialNetworkData;
-import Objects.FriendEdge;
-import Objects.LikeEdge;
-import Objects.Person;
-import Objects.Webpage;
+import Data.SocialNetworkData;
+import Data.FriendEdge;
+import Data.LikeEdge;
+import Data.Person;
+import Data.Webpage;
 import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.OrientDB;
 import com.orientechnologies.orient.core.db.OrientDBConfig;
 import com.orientechnologies.orient.core.record.OVertex;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
-import com.orientechnologies.orient.graph.batch.OGraphBatchInsert;
 
 import java.sql.Date;
 import java.util.HashMap;

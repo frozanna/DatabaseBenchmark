@@ -1,4 +1,4 @@
-package Objects;
+package Data;
 
 public class FriendEdge {
     public long id;
