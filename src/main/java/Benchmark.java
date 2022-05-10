@@ -17,7 +17,7 @@ public class Benchmark {
     private final List<TestReport> testReports;
 
     private final int testRunCount;
-    private final String pathToTestData;
+    private final String pathToQueryData;
     private final String pathToCRUDData;
     private static final DataReader dataReader = new CSVDataReader();
     private final List<DatabaseAdapter> adapters = new ArrayList<>();
@@ -25,8 +25,8 @@ public class Benchmark {
     SocialNetworkData queryData;
     SocialNetworkData CRUDData;
 
-    public Benchmark(String pathToTestData, String pathToCRUDData, int testRunCount) {
-        this.pathToTestData = pathToTestData;
+    public Benchmark(String pathToQueryData, String pathToCRUDData, int testRunCount) {
+        this.pathToQueryData = pathToQueryData;
         this.pathToCRUDData = pathToCRUDData;
         this.testRunCount = testRunCount;
         this.testReports = new ArrayList<>();
@@ -34,7 +34,7 @@ public class Benchmark {
 
     private void setup() {
         CRUDData = dataReader.getData(pathToCRUDData);
-        queryData = dataReader.getData(pathToTestData);
+        queryData = dataReader.getData(pathToQueryData);
 
         List<DatabaseAdapter> createdAdapters = new ArrayList<>();
         createdAdapters.add(new MySQLAdapter());
