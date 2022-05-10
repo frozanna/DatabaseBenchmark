@@ -22,8 +22,8 @@ public class Benchmark {
     private static final DataReader dataReader = new CSVDataReader();
     private final List<DatabaseAdapter> adapters = new ArrayList<>();
 
-    SocialNetworkData queryData;
-    SocialNetworkData CRUDData;
+    private SocialNetworkData queryData;
+    private SocialNetworkData CRUDData;
 
     public Benchmark(String pathToQueryData, String pathToCRUDData, int testRunCount) {
         this.pathToQueryData = pathToQueryData;
