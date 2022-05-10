@@ -33,4 +33,9 @@ public enum TestType {
     public boolean isQueryTest() {
         return this.category == TestCategory.QUERY;
     }
+
+    private enum TestCategory {
+        CRUD,
+        QUERY
+    }
 }
