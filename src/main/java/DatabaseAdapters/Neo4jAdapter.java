@@ -1,5 +1,6 @@
 package DatabaseAdapters;
 
+import DataReaders.SocialNetworkData;
 import Objects.FriendEdge;
 import Objects.LikeEdge;
 import Objects.Person;
@@ -36,17 +37,6 @@ public class Neo4jAdapter implements DatabaseAdapter {
     }
 
     @Override
-    public boolean createGraph(List<Person> people, List<FriendEdge> friends, List<Webpage> webpages, List<LikeEdge> likes) {
-        try {
-            batchInsertData(people, friends, webpages, likes, 1000);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return false;
-        }
-        return true;
-    }
-
-    @Override
     public boolean deleteGraph() {
         try (Session session = driver.session()) {
             try (Transaction tx = session.beginTransaction()) {
@@ -65,7 +55,28 @@ public class Neo4jAdapter implements DatabaseAdapter {
     }
 
     @Override
-    public long runInsertTest(List<Person> people, List<FriendEdge> friends, List<Webpage> webpages, List<LikeEdge> likes) {
+    public boolean createGraph(SocialNetworkData data) {
+        List<Person> people = data.getPeople();
+        List<FriendEdge> friends = data.getFriends();
+        List<Webpage> webpages = data.getWebpages();
+        List<LikeEdge> likes = data.getLikes();
+
+        try {
+            batchInsertData(people, friends, webpages, likes, 1000);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+        return true;
+    }
+
+    @Override
+    public long runInsertTest(SocialNetworkData data) {
+        List<Person> people = data.getPeople();
+        List<FriendEdge> friends = data.getFriends();
+        List<Webpage> webpages = data.getWebpages();
+        List<LikeEdge> likes = data.getLikes();
+
         long start = System.currentTimeMillis();
 
         try{
@@ -95,7 +106,12 @@ public class Neo4jAdapter implements DatabaseAdapter {
     }
 
     @Override
-    public long runUpdateTest(List<Person> people, List<Webpage> webpages) {
+    public long runUpdateTest(SocialNetworkData data) {
+        List<Person> people = data.getPeople();
+        List<FriendEdge> friends = data.getFriends();
+        List<Webpage> webpages = data.getWebpages();
+        List<LikeEdge> likes = data.getLikes();
+
         long start = System.currentTimeMillis();
 
         try{
@@ -175,7 +191,13 @@ public class Neo4jAdapter implements DatabaseAdapter {
     }
 
     @Override
-    public long runDeleteTest(List<Person> people, List<Webpage> webpages) {
+    public long runDeleteTest(SocialNetworkData data) {
+        List<Person> people = data.getPeople();
+        List<FriendEdge> friends = data.getFriends();
+        List<Webpage> webpages = data.getWebpages();
+        List<LikeEdge> likes = data.getLikes();
+
+
         long start = System.currentTimeMillis();
 
         try{
@@ -390,6 +412,11 @@ public class Neo4jAdapter implements DatabaseAdapter {
         return finish - start;
     }
 
+    @Override
+    public long runGetAllNeighboursTest() {
+        return 0;
+    }
+
     private void insertData(List<Person> people, List<FriendEdge> friends, List<Webpage> webpages, List<LikeEdge> likes) {
         Session session = driver.session();
 
@@ -436,10 +463,15 @@ public class Neo4jAdapter implements DatabaseAdapter {
             tx.close();
         }
 
+        int i = 0;
         for (LikeEdge l : likes) {
+            System.out.println(l.id);
+            i++;
+            if(i > 75000)
+                continue;
             Transaction tx = session.beginTransaction();
 
-            String query = "MATCH (p:Person {ID: $pId}), (w:Webpage {ID: $wId}) CREATE (p)-[r:LIKES]->(w)";
+            String query = "MATCH (p:Person {ID: $pId}), (w:Webpage {ID: $wId}) CREATE UNIQUE (p)-[r:LIKES]->(w)";
             Map<String, Object> parameters = new HashMap<>();
             parameters.put("pId", l.personId);
             parameters.put("wId", l.webpageId);
@@ -549,11 +581,6 @@ public class Neo4jAdapter implements DatabaseAdapter {
             } else
                 i++;
         }
-
-        query = "CREATE BTREE INDEX WebpageIndex IF NOT EXISTS FOR (w:Webpage) ON w.ID";
-        tx.run(query);
-        query = "CREATE BTREE INDEX PersonIndex IF NOT EXISTS FOR (p:Person) ON p.ID";
-        tx.run(query);
 
         tx.commit();
         tx.close();

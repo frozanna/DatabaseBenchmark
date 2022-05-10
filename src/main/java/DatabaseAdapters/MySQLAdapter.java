@@ -1,5 +1,6 @@
 package DatabaseAdapters;
 
+import DataReaders.SocialNetworkData;
 import Objects.FriendEdge;
 import Objects.LikeEdge;
 import Objects.Person;
@@ -52,7 +53,12 @@ public class MySQLAdapter implements DatabaseAdapter {
     }
 
     @Override
-    public boolean createGraph(List<Person> people, List<FriendEdge> friends, List<Webpage> webpages, List<LikeEdge> likes) {
+    public boolean createGraph(SocialNetworkData data) {
+        List<Person> people = data.getPeople();
+        List<FriendEdge> friends = data.getFriends();
+        List<Webpage> webpages = data.getWebpages();
+        List<LikeEdge> likes = data.getLikes();
+
         try{
             batchInsertData(people, friends, webpages, likes, 1000);
         } catch (SQLException e) {
@@ -97,7 +103,12 @@ public class MySQLAdapter implements DatabaseAdapter {
     }
 
     @Override
-    public long runInsertTest(List<Person> people, List<FriendEdge> friends, List<Webpage> webpages, List<LikeEdge> likes) {
+    public long runInsertTest(SocialNetworkData data) {
+        List<Person> people = data.getPeople();
+        List<FriendEdge> friends = data.getFriends();
+        List<Webpage> webpages = data.getWebpages();
+        List<LikeEdge> likes = data.getLikes();
+
         long start = System.currentTimeMillis();
 
         try{
@@ -127,7 +138,12 @@ public class MySQLAdapter implements DatabaseAdapter {
     }
 
     @Override
-    public long runUpdateTest(List<Person> people, List<Webpage> webpages) {
+    public long runUpdateTest(SocialNetworkData data) {
+        List<Person> people = data.getPeople();
+        List<FriendEdge> friends = data.getFriends();
+        List<Webpage> webpages = data.getWebpages();
+        List<LikeEdge> likes = data.getLikes();
+
         long start = System.currentTimeMillis();
 
         try {
@@ -186,7 +202,12 @@ public class MySQLAdapter implements DatabaseAdapter {
     }
 
     @Override
-    public long runDeleteTest(List<Person> people, List<Webpage> webpages) {
+    public long runDeleteTest(SocialNetworkData data) {
+        List<Person> people = data.getPeople();
+        List<FriendEdge> friends = data.getFriends();
+        List<Webpage> webpages = data.getWebpages();
+        List<LikeEdge> likes = data.getLikes();
+
         long start = System.currentTimeMillis();
 
         try {
@@ -379,6 +400,11 @@ public class MySQLAdapter implements DatabaseAdapter {
 
         long finish = System.currentTimeMillis();
         return finish - start;
+    }
+
+    @Override
+    public long runGetAllNeighboursTest() {
+        return 0;
     }
 
     private void insertData(List<Person> people, List<FriendEdge> friends, List<Webpage> webpages, List<LikeEdge> likes) throws SQLException {

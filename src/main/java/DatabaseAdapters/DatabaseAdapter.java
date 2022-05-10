@@ -1,5 +1,6 @@
 package DatabaseAdapters;
 
+import DataReaders.SocialNetworkData;
 import Objects.FriendEdge;
 import Objects.LikeEdge;
 import Objects.Person;
@@ -13,17 +14,15 @@ public interface DatabaseAdapter {
     boolean connectToDatabase();
     boolean closeConnection();
 
-    boolean createGraph(List<Person> people, List<FriendEdge> friends,
-                        List<Webpage> webpages, List<LikeEdge> likes);
+    boolean createGraph(SocialNetworkData data);
     boolean deleteGraph();
 
     // TESTS
-    long runInsertTest(List<Person> people, List<FriendEdge> friends,
-                       List<Webpage> webpages, List<LikeEdge> likes);
+    long runInsertTest(SocialNetworkData data);
     long runBatchInsertTest(List<Person> people, List<FriendEdge> friends,
                        List<Webpage> webpages, List<LikeEdge> likes);
-    long runUpdateTest(List<Person> people, List<Webpage> webpages);
-    long runDeleteTest(List<Person> people, List<Webpage> webpages);
+    long runUpdateTest(SocialNetworkData data);
+    long runDeleteTest(SocialNetworkData data);
 
     long runSelectByIntegerTest();
     long runSelectEdgesWithVertexParametersTest();
@@ -32,4 +31,6 @@ public interface DatabaseAdapter {
 
     long runCountNeighboursTest();
     long runGroupByTest();
+
+    long runGetAllNeighboursTest();
 }

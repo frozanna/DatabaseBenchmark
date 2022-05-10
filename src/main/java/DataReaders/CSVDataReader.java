@@ -13,9 +13,17 @@ import java.util.List;
 public class CSVDataReader implements DataReader {
     private static final String DELIMITER = ",";
 
-
     @Override
-    public List<Person> readPersons(String path) {
+    public SocialNetworkData getData(String path) {
+        SocialNetworkData data = new SocialNetworkData();
+        data.setPeople(readPersons(path + SocialNetworkData.peopleFileName));
+        data.setWebpages(readWebpages(path + SocialNetworkData.webpageFileName));
+        data.setFriends(readFriends(path + SocialNetworkData.friendsFileName));
+        data.setLikes(readLikes(path + SocialNetworkData.likesFileName));
+        return data;
+    }
+
+    private static List<Person> readPersons(String path) {
         List<Person> persons = new ArrayList<>();
         try {
             InputStream is = CSVDataReader.class.getResourceAsStream(path);
@@ -45,8 +53,7 @@ public class CSVDataReader implements DataReader {
         return persons;
     }
 
-    @Override
-    public List<FriendEdge> readFriends(String path) {
+    private static List<FriendEdge> readFriends(String path) {
         List<FriendEdge> friends = new ArrayList<>();
         try {
             InputStream is = CSVDataReader.class.getResourceAsStream(path);
@@ -74,8 +81,7 @@ public class CSVDataReader implements DataReader {
         return friends;
     }
 
-    @Override
-    public List<Webpage> readWebpages(String path) {
+    private static List<Webpage> readWebpages(String path) {
         List<Webpage> webpages = new ArrayList<>();
         try {
             InputStream is = CSVDataReader.class.getResourceAsStream(path);
@@ -103,8 +109,7 @@ public class CSVDataReader implements DataReader {
         return webpages;
     }
 
-    @Override
-    public List<LikeEdge> readLikes(String path) {
+    private static List<LikeEdge> readLikes(String path) {
         List<LikeEdge> likes = new ArrayList<>();
         try {
             InputStream is = CSVDataReader.class.getResourceAsStream(path);

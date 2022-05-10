@@ -1,5 +1,6 @@
 import DataReaders.CSVDataReader;
 import DataReaders.DataReader;
+import DataReaders.SocialNetworkData;
 import DatabaseAdapters.*;
 import Log.Log;
 import Objects.FriendEdge;
@@ -25,15 +26,8 @@ public class Benchmark {
     private static final DataReader dataReader = new CSVDataReader();
     private final List<DatabaseAdapter> adapters = new ArrayList<>();
 
-    private List<Person> people;
-    private List<FriendEdge> friends;
-    private List<Webpage> webpages;
-    private List<LikeEdge> likes;
-
-    private List<Person> peopleCRUD;
-    private List<FriendEdge> friendsCRUD;
-    private List<Webpage> webpagesCRUD;
-    private List<LikeEdge> likesCRUD;
+    SocialNetworkData queryData;
+    SocialNetworkData CRUDData;
 
     public Benchmark(String pathToTestData, String pathToCRUDData, int testRunCount) {
         this.pathToTestData = pathToTestData;
@@ -43,16 +37,8 @@ public class Benchmark {
     }
 
     private void setup() {
-        people = dataReader.readPersons(pathToTestData + "people.csv");
-        friends = dataReader.readFriends(pathToTestData + "friends.csv");
-        webpages = dataReader.readWebpages(pathToTestData + "webpages.csv");
-        likes = dataReader.readLikes(pathToTestData + "likes.csv");
-
-        peopleCRUD = dataReader.readPersons(pathToCRUDData + "people.csv");
-        friendsCRUD = dataReader.readFriends(pathToCRUDData + "friends.csv");
-        webpagesCRUD = dataReader.readWebpages(pathToCRUDData + "webpages.csv");
-        likesCRUD = dataReader.readLikes(pathToCRUDData + "likes.csv");
-
+        CRUDData = dataReader.getData(pathToCRUDData);
+        queryData = dataReader.getData(pathToTestData);
 
         List<DatabaseAdapter> createdAdapters = new ArrayList<>();
         createdAdapters.add(new MySQLAdapter());
@@ -86,7 +72,7 @@ public class Benchmark {
     }
 
     private void evaluateQueryTests() {
-        // Setup - cleaning databases
+//         Setup - cleaning databases
         cleanDatabases();
 
         // Query tests
@@ -112,18 +98,6 @@ public class Benchmark {
             Log.e("Cannot run method");
             e.printStackTrace();
         }
-
-//
-//        Log.i("Select by integer test");
-//        TestReport selectByTestReport = TestReport.createTestReportForDatabases(TestType.SELECT_BY_INT, adapters);
-//        for (DatabaseAdapter adapter: adapters) {
-//            for (int i = 0; i < testRunCount ; i ++) {
-//                long time = adapter.runSelectByIntTest();
-//                selectByTestReport.addResult(adapter, time);
-//                Log.m(adapter.getDatabaseName() + ": " + time + " millis");
-//            }
-//        }
-//        testReports.add(selectByTestReport);
     }
 
     private void evaluateCRUDTests() {
@@ -139,17 +113,17 @@ public class Benchmark {
 
         for (DatabaseAdapter adapter: adapters) {
             for (int i = 0; i < testRunCount ; i ++) {
-                long insertTime = adapter.runInsertTest(peopleCRUD, friendsCRUD, webpagesCRUD, likesCRUD);
+                long insertTime = adapter.runInsertTest(CRUDData);
                 insertReport.addResult(adapter, insertTime);
                 Log.i("Insert test");
                 Log.m(adapter.getDatabaseName() + ": " + insertTime + " millis");
 
-                long updateTime = adapter.runUpdateTest(peopleCRUD, webpagesCRUD);
+                long updateTime = adapter.runUpdateTest(CRUDData);
                 updateReport.addResult(adapter, updateTime);
                 Log.i("Update test");
                 Log.m(adapter.getDatabaseName() + ": " + updateTime + " millis");
 
-                long deleteTime = adapter.runDeleteTest(peopleCRUD, webpagesCRUD);
+                long deleteTime = adapter.runDeleteTest(CRUDData);
                 deleteReport.addResult(adapter, deleteTime);
                 Log.i("Delete test");
                 Log.m(adapter.getDatabaseName() + ": " + deleteTime + " millis");
@@ -188,7 +162,7 @@ public class Benchmark {
     private void createGraphForQueryTests() {
         Log.d("Creating graph");
         for (DatabaseAdapter adapter: adapters) {
-            if(adapter.createGraph(people, friends, webpages, likes))
+            if(adapter.createGraph(queryData))
                 Log.d("Graph in " + adapter.getDatabaseName() + " database created");
             else
                 Log.e("Cannot create graph in " + adapter.getDatabaseName() + " database");

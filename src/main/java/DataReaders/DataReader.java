@@ -8,8 +8,5 @@ import Objects.Webpage;
 import java.util.List;
 
 public interface DataReader {
-    List<Person> readPersons(String path);
-    List<FriendEdge> readFriends(String path);
-    List<Webpage> readWebpages(String path);
-    List<LikeEdge> readLikes(String path);
+    SocialNetworkData getData(String path);
 }

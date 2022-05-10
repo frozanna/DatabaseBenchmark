@@ -1,5 +1,6 @@
 package DatabaseAdapters;
 
+import DataReaders.SocialNetworkData;
 import Objects.FriendEdge;
 import Objects.LikeEdge;
 import Objects.Person;
@@ -50,7 +51,12 @@ public class OrientDBAdapter implements DatabaseAdapter {
     }
 
     @Override
-    public boolean createGraph(List<Person> people, List<FriendEdge> friends, List<Webpage> webpages, List<LikeEdge> likes) {
+    public boolean createGraph(SocialNetworkData data) {
+        List<Person> people = data.getPeople();
+        List<FriendEdge> friends = data.getFriends();
+        List<Webpage> webpages = data.getWebpages();
+        List<LikeEdge> likes = data.getLikes();
+
         try {
             insertData(people, friends, webpages, likes);
         } catch (Exception e) {
@@ -79,7 +85,12 @@ public class OrientDBAdapter implements DatabaseAdapter {
     }
 
     @Override
-    public long runInsertTest(List<Person> people, List<FriendEdge> friends, List<Webpage> webpages, List<LikeEdge> likes) {
+    public long runInsertTest(SocialNetworkData data) {
+        List<Person> people = data.getPeople();
+        List<FriendEdge> friends = data.getFriends();
+        List<Webpage> webpages = data.getWebpages();
+        List<LikeEdge> likes = data.getLikes();
+
         long start = System.currentTimeMillis();
 
         try{
@@ -109,7 +120,12 @@ public class OrientDBAdapter implements DatabaseAdapter {
     }
 
     @Override
-    public long runUpdateTest(List<Person> people, List<Webpage> webpages) {
+    public long runUpdateTest(SocialNetworkData data) {
+        List<Person> people = data.getPeople();
+        List<FriendEdge> friends = data.getFriends();
+        List<Webpage> webpages = data.getWebpages();
+        List<LikeEdge> likes = data.getLikes();
+
         long start = System.currentTimeMillis();
 
         try{
@@ -152,7 +168,12 @@ public class OrientDBAdapter implements DatabaseAdapter {
     }
 
     @Override
-    public long runDeleteTest(List<Person> people, List<Webpage> webpages) {
+    public long runDeleteTest(SocialNetworkData data) {
+        List<Person> people = data.getPeople();
+        List<FriendEdge> friends = data.getFriends();
+        List<Webpage> webpages = data.getWebpages();
+        List<LikeEdge> likes = data.getLikes();
+
         long start = System.currentTimeMillis();
 
         try{
@@ -336,6 +357,11 @@ public class OrientDBAdapter implements DatabaseAdapter {
         return finish - start;
     }
 
+    @Override
+    public long runGetAllNeighboursTest() {
+        return 0;
+    }
+
     private void insertData(List<Person> people, List<FriendEdge> friends, List<Webpage> webpages, List<LikeEdge> likes) {
         Map<Long, OVertex> personMap = new HashMap<>();
         Map<Long, OVertex> webpageMap = new HashMap<>();
@@ -373,75 +399,130 @@ public class OrientDBAdapter implements DatabaseAdapter {
     }
 
     private void batchInsertData(List<Person> people, List<FriendEdge> friends, List<Webpage> webpages, List<LikeEdge> likes, int batchSize) {
-        OGraphBatchInsert batch = new OGraphBatchInsert("remote:localhost/socialnetwork", "root", "root");
-        batch.setVertexClass("Person");
-        batch.begin();
+        Map<Long, OVertex> personMap = new HashMap<>();
+        Map<Long, OVertex> webpageMap = new HashMap<>();
 
         int i = 0;
 
         for (Person p : people) {
-            batch.createVertex(p.id);
-            batch.setVertexProperties(p.id, propertiesToMap(p));
+            OVertex personVertex = createOVertex(db, p);
+            personVertex.save();
 
             if (i == batchSize) {
-                batch.end();
-                batch.begin();
+                db.commit();
                 i = 0;
             } else
                 i++;
+            personMap.put(p.id, personVertex);
         }
-
-        batch.end();
-        i = 0;
-        batch.setVertexClass("Webpage");
-        batch.begin();
 
         for (Webpage w : webpages) {
-            batch.createVertex(w.id);
-            batch.setVertexProperties(w.id, propertiesToMap(w));
-
+            OVertex webpageVertex = createOVertex(db, w);
+            webpageVertex.save();
             if (i == batchSize) {
-                batch.end();
-                batch.begin();
+                db.commit();
                 i = 0;
             } else
                 i++;
+            webpageMap.put(w.id, webpageVertex);
         }
-
-        batch.end();
-        i = 0;
-        batch.setVertexClass("FriendWith");
-        batch.begin();
 
         for (FriendEdge f : friends) {
-            batch.createEdge(f.person1Id, f.person2Id, new HashMap<>());
-            batch.createEdge(f.person2Id, f.person1Id, new HashMap<>());
+            OVertex p1 = personMap.get(f.person1Id);
+            OVertex p2 = personMap.get(f.person2Id);
 
+            p1.addEdge(p2, "FriendWith").save();
+            p2.addEdge(p1, "FriendWith").save();
             if (i == batchSize) {
-                batch.end();
-                batch.begin();
+                db.commit();
                 i = 0;
             } else
                 i++;
         }
-
-        batch.end();
-        i = 0;
-        batch.setEdgeClass("Likes");
-        batch.begin();
 
         for (LikeEdge l : likes) {
-            batch.createEdge(l.personId, l.webpageId, new HashMap<>());
+            OVertex p = personMap.get(l.personId);
+            OVertex w = webpageMap.get(l.webpageId);
 
+            p.addEdge(w, "Likes").save();
             if (i == batchSize) {
-                batch.end();
-                batch.begin();
+                db.commit();
                 i = 0;
             } else
                 i++;
         }
 
-        batch.begin();
+
+//        OGraphBatchInsert batch = new OGraphBatchInsert("remote:localhost/socialnetwork", "root", "root");
+//        batch.setVertexClass("Person");
+//        batch.begin();
+//
+//        int i = 0;
+//
+//        for (Person p : people) {
+//            batch.createVertex(p.id);
+//            batch.setVertexProperties(p.id, propertiesToMap(p));
+//
+//            if (i == batchSize) {
+//                batch.end();
+//                batch.begin();
+//                i = 0;
+//            } else
+//                i++;
+//        }
+//        System.out.println("Webpage");
+//
+//        batch.end();
+//        i = 0;
+//        batch.setVertexClass("Webpage");
+//        batch.begin();
+//
+//        for (Webpage w : webpages) {
+//            batch.createVertex(w.id);
+//            batch.setVertexProperties(w.id, propertiesToMap(w));
+//
+//            if (i == batchSize) {
+//                batch.end();
+//                batch.begin();
+//                i = 0;
+//            } else
+//                i++;
+//        }
+//
+//        batch.end();
+//        i = 0;
+//        batch.setVertexClass("FriendWith");
+//        batch.begin();
+//
+//        for (FriendEdge f : friends) {
+//            batch.createEdge(f.person1Id, f.person2Id, new HashMap<>());
+//            batch.createEdge(f.person2Id, f.person1Id, new HashMap<>());
+//
+//            if (i == batchSize) {
+//                batch.end();
+//                batch.begin();
+//                i = 0;
+//            } else
+//                i++;
+//        }
+//
+//        batch.end();
+//        i = 0;
+//        batch.setEdgeClass("Likes");
+//        batch.begin();
+//
+//        for (LikeEdge l : likes) {
+//            batch.createEdge(l.personId, l.webpageId, new HashMap<>());
+//
+//            if (i == batchSize) {
+//                batch.end();
+//                batch.begin();
+//                i = 0;
+//            } else
+//                i++;
+//        }
+//
+//        batch.begin();
     }
 
     private static Map<String, Object> propertiesToMap(Person person) {

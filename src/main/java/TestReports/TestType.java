@@ -12,7 +12,9 @@ public enum TestType {
     SELECT_MULTIPLE_PARAMS("SelectByMultipleParametersTest", TestCategory.QUERY),
 
     COUNT_NEIGHBOURS("CountNeighboursTest", TestCategory.QUERY),
-    GROUP_BY("GroupByTest", TestCategory.QUERY);
+    GROUP_BY("GroupByTest", TestCategory.QUERY),
+
+    GET_ALL_NEIGHBOURS("GetAllNeighboursTest", TestCategory.QUERY);
 
     private final String text;
     private final TestCategory category;
