@@ -4,7 +4,7 @@ import java.util.List;
 
 public class SocialNetworkData {
     public static String peopleFileName = "people.csv";
-    public static String webpageFileName = "people.csv";
+    public static String webpagesFileName = "webpages.csv";
     public static String friendsFileName = "friends.csv";
     public static String likesFileName = "likes.csv";
 
