@@ -14,7 +14,7 @@ public class CSVDataReader implements DataReader {
     public SocialNetworkData getData(String path) {
         SocialNetworkData data = new SocialNetworkData();
         data.setPeople(readPersons(path + SocialNetworkData.peopleFileName));
-        data.setWebpages(readWebpages(path + SocialNetworkData.webpageFileName));
+        data.setWebpages(readWebpages(path + SocialNetworkData.webpagesFileName));
         data.setFriends(readFriends(path + SocialNetworkData.friendsFileName));
         data.setLikes(readLikes(path + SocialNetworkData.likesFileName));
         return data;
