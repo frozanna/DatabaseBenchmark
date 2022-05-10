@@ -30,7 +30,7 @@ public enum TestType {
         return text;
     }
 
-    public boolean isCRUDTest() {
-        return this.category == TestCategory.CRUD;
+    public boolean isQueryTest() {
+        return this.category == TestCategory.QUERY;
     }
 }

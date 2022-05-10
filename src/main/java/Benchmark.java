@@ -77,7 +77,7 @@ public class Benchmark {
         Log.i("Running query tests");
 
         try {
-            for (TestType testType : Arrays.stream(TestType.values()).filter(x -> !x.isCRUDTest()).collect(Collectors.toList())) {
+            for (TestType testType : Arrays.stream(TestType.values()).filter(x -> x.isQueryTest()).collect(Collectors.toList())) {
                 Log.i(testType.toString());
                 TestReport report = TestReport.createTestReportForDatabases(testType, adapters);
                 for (DatabaseAdapter adapter: adapters) {
