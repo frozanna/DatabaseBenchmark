@@ -7,10 +7,12 @@ import Data.Person;
 import Data.Webpage;
 import com.mongodb.*;
 import com.mongodb.client.AggregateIterable;
+import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 import org.bson.Document;
 
+import javax.print.Doc;
 import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -219,6 +221,9 @@ public class MongoDBAdapter implements DatabaseAdapter {
                 BasicDBObject query = new BasicDBObject();
                 query.put("id", p.id);
                 peopleCollection.remove(query);
+
+                BasicDBObject match = new BasicDBObject("friends", p.id);
+                peopleCollection.update(match, new BasicDBObject("$pull", match));
             }
 
             for(Webpage w : webpages) {
@@ -276,8 +281,6 @@ public class MongoDBAdapter implements DatabaseAdapter {
 
             Map<Long, String> webpageUrlMap = new HashMap<>();
 
-            int i = 0;
-
             while (cursor.hasNext()) {
                 BasicDBObject personObject = (BasicDBObject) cursor.next();
                 BasicDBList likes = (BasicDBList) personObject.get("likes");
@@ -293,11 +296,7 @@ public class MongoDBAdapter implements DatabaseAdapter {
                         BasicDBObject webpageObject = (BasicDBObject)cursorWebpages.next();
                         webpageUrlMap.put(likeWebpageId, webpageObject.getString("url"));
                     }
-
-                    i++;
                 }
-
-                cursor.next();
             }
 
 //            System.out.println(i);
@@ -320,13 +319,8 @@ public class MongoDBAdapter implements DatabaseAdapter {
             BasicDBObject searchQuery = new BasicDBObject();
             searchQuery.put("name", new BasicDBObject("$regex", "^KR.*"));
             DBCursor cursor = peopleCollection.find(searchQuery);
-
-            int i = 0;
-
-            while (cursor.hasNext()) {
+            while(cursor.hasNext())
                 cursor.next();
-                i++;
-            }
 
 //            System.out.println(i);
         } catch (Exception e) {
@@ -350,13 +344,8 @@ public class MongoDBAdapter implements DatabaseAdapter {
             searchQuery.put("url", new BasicDBObject("$regex", ".*0\\.html$"));
             searchQuery.put("creation_date", new BasicDBObject("$gte", LocalDate.parse("2000-01-01")));
             DBCursor cursor = webpagesCollection.find(searchQuery);
-
-            int i = 0;
-
-            while (cursor.hasNext()) {
+            while(cursor.hasNext())
                 cursor.next();
-                i++;
-            }
 
 //            System.out.println(i);
         } catch (Exception e) {
@@ -375,16 +364,12 @@ public class MongoDBAdapter implements DatabaseAdapter {
         try{
             MongoCollection<Document> peopleCollection = mongoDatabase.getCollection("People");
 
-            AggregateIterable<Document> result = peopleCollection.aggregate(Arrays.asList(new Document("$project",
+            ArrayList<Document> result = peopleCollection.aggregate(Arrays.asList(new Document("$project",
                     new Document("id", "$id")
                             .append("neighbour_count",
                                     new Document("$sum", Arrays.asList(new Document("$size", "$likes"),
-                                            new Document("$size", "$friends")))))));
+                                            new Document("$size", "$friends"))))))).into(new ArrayList<>());
 
-            int i = 0;
-            for (Document document : result) i++;
-
-//            System.out.println(i);
         } catch (Exception e) {
             e.printStackTrace();
             return -1;
@@ -401,13 +386,64 @@ public class MongoDBAdapter implements DatabaseAdapter {
         try{
             MongoCollection<Document> peopleCollection = mongoDatabase.getCollection("People");
 
-            AggregateIterable<Document> result = peopleCollection.aggregate(Arrays.asList(new Document("$group",
-                    new Document("_id", "$surname").append("avgAge", new Document("$avg", "$age")))));
+            ArrayList<Document> result = peopleCollection.aggregate(Arrays.asList(new Document("$group",
+                    new Document("_id", "$surname").append("avgAge", new Document("$avg", "$age")))))
+                    .into(new ArrayList<>());
 
-            int i = 0;
-            for (Document document : result) i++;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return -1;
+        }
 
-//            System.out.println(i);
+        long finish = System.currentTimeMillis();
+        return finish - start;
+    }
+
+
+//    $match
+//    {
+//        id: param
+//    }
+//    $lookup
+//     {
+//      from: "People",
+//      localField: "friends",
+//      foreignField: "id",
+//      as: "friendNeighbours"
+//    }
+//    {
+//      from: "Webpages",
+//      localField: "likes",
+//      foreignField: "id",
+//      as: "WebpageNeighbours"
+//    }
+
+    @Override
+    public long runGetNeighboursTest() {
+        long personCount = countPerson();
+
+        long start = System.currentTimeMillis();
+
+        try{
+            MongoCollection<Document> peopleCollection = mongoDatabase.getCollection("People");
+
+            for(long i = 1; i <= personCount; i++) {
+                AggregateIterable<Document> result = peopleCollection.aggregate(Arrays.asList(new Document("$match",
+                                new Document("id", i)),
+                        new Document("$lookup",
+                                new Document("from", "People")
+                                        .append("localField", "friends")
+                                        .append("foreignField", "id")
+                                        .append("as", "friendNeighbours")),
+                        new Document("$lookup",
+                                new Document("from", "Webpages")
+                                        .append("localField", "likes")
+                                        .append("foreignField", "id")
+                                        .append("as", "WebpageNeighbours"))));
+
+                if(result.cursor().hasNext())
+                    result.cursor().next();
+            }
         } catch (Exception e) {
             e.printStackTrace();
             return -1;
@@ -418,8 +454,53 @@ public class MongoDBAdapter implements DatabaseAdapter {
     }
 
     @Override
-    public long runGetAllNeighboursTest() {
+    public long runGetVerticesWithoutEdgesTest() {
+        long start = System.currentTimeMillis();
+
+        try{
+            List<Document> results = new ArrayList<>();
+            MongoCollection<Document> peopleCollection = mongoDatabase.getCollection("People");
+            MongoCollection<Document> webpagesCollection = mongoDatabase.getCollection("Webpages");
+
+            BasicDBObject searchQuery = new BasicDBObject();
+            searchQuery.put("friends", Arrays.asList());
+            searchQuery.put("likes", Arrays.asList());
+            ArrayList<Document> resultsPeople = peopleCollection.find(searchQuery).into(new ArrayList<>());
+
+
+            System.out.println(resultsPeople.size());
+//            while(resultsPeople.cursor().hasNext())
+//                results.add(resultsPeople.cursor().next());
+
+
+            ArrayList<Document> webpages = webpagesCollection.find().into(new ArrayList<>());
+
+            for(Document d : webpages ) {
+                BasicDBObject searchLikes = new BasicDBObject();
+                searchLikes.put("likes", d.getLong("id"));
+                long countLikes = peopleCollection.countDocuments(searchLikes);
+                if(countLikes == 0)
+                    results.add(d);
+            }
+
+            System.out.println(results.size());
+        } catch (Exception e) {
+            e.printStackTrace();
+            return -1;
+        }
+
+        long finish = System.currentTimeMillis();
+        return finish - start;
+    }
+
+    @Override
+    public long runGetCommonNeighboursTest() {
         return 0;
+    }
+
+    private long countPerson() {
+        MongoCollection<Document> peopleCollection = mongoDatabase.getCollection("People");
+        return peopleCollection.countDocuments();
     }
 
     private void insertData(List<Person> people, List<FriendEdge> friends, List<Webpage> webpages, List<LikeEdge> likes) {

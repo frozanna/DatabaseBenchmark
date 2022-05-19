@@ -243,13 +243,6 @@ public class MySQLAdapter implements DatabaseAdapter {
 
             Statement stmt = conn.createStatement();
             ResultSet rs = stmt.executeQuery(query);
-
-            int i = 0;
-
-            while (rs.next()) {  i++; }
-
-//            System.out.println(i);
-
             stmt.close();
         } catch (Exception e) {
             e.printStackTrace();
@@ -269,14 +262,6 @@ public class MySQLAdapter implements DatabaseAdapter {
 
             Statement stmt = conn.createStatement();
             ResultSet rs = stmt.executeQuery(query);
-
-            int i = 0;
-
-            while (rs.next()) {
-                i++;
-            }
-
-//            System.out.println(i);
             stmt.close();
         } catch (Exception e) {
             e.printStackTrace();
@@ -296,14 +281,6 @@ public class MySQLAdapter implements DatabaseAdapter {
 
             Statement stmt = conn.createStatement();
             ResultSet rs = stmt.executeQuery(query);
-
-            int i = 0;
-
-            while (rs.next()) {
-                i++;
-            }
-
-//            System.out.println(i);
             stmt.close();
         } catch (Exception e) {
             e.printStackTrace();
@@ -323,14 +300,6 @@ public class MySQLAdapter implements DatabaseAdapter {
 
             Statement stmt = conn.createStatement();
             ResultSet rs = stmt.executeQuery(query);
-
-            int i = 0;
-
-            while (rs.next()) {
-                i++;
-            }
-
-//            System.out.println(i);
             stmt.close();
         } catch (Exception e) {
             e.printStackTrace();
@@ -357,14 +326,6 @@ public class MySQLAdapter implements DatabaseAdapter {
                     "GROUP BY p.ID";
             Statement stmt = conn.createStatement();
             ResultSet rs = stmt.executeQuery(query);
-
-            int i = 0;
-
-            while (rs.next()) {
-                i++;
-            }
-
-//            System.out.println(i);
             stmt.close();
         } catch (Exception e) {
             e.printStackTrace();
@@ -385,13 +346,6 @@ public class MySQLAdapter implements DatabaseAdapter {
             Statement stmt = conn.createStatement();
             ResultSet rs = stmt.executeQuery(query);
 
-            int i = 0;
-
-            while (rs.next()) {
-                i++;
-            }
-
-//            System.out.println(i);
             stmt.close();
         } catch (Exception e) {
             e.printStackTrace();
@@ -403,7 +357,83 @@ public class MySQLAdapter implements DatabaseAdapter {
     }
 
     @Override
-    public long runGetAllNeighboursTest() {
+    public long runGetNeighboursTest() {
+        long count = countPerson();
+        if (count < 0) {
+            System.out.println("Cannot count vertices.");
+            return -1;
+        }
+
+        String queryFriend = "SELECT p.ID, pf1.*\n" +
+                "FROM person p\n" +
+                "LEFT JOIN friends f1\n" +
+                "ON f1.Person1_ID = p.ID\n" +
+                "LEFT JOIN person pf1 on pf1.ID = f1.Person2_ID\n" +
+                "WHERE p.ID = ?\n" +
+                "UNION ALL\n" +
+                "SELECT p.ID, pf2.*\n" +
+                "FROM person p\n" +
+                "LEFT JOIN friends f2\n" +
+                "ON f2.Person2_ID = p.ID\n" +
+                "LEFT JOIN person pf2 on pf2.ID = f2.Person1_ID\n" +
+                "WHERE p.ID = ?\n";
+        String queryLikes = "SELECT p.ID, w.*\n" +
+                "FROM person p\n" +
+                "LEFT JOIN likes l\n" +
+                "ON p.ID = l.Person_ID\n" +
+                "LEFT JOIN webpage w on l.Webpage_ID = w.ID\n" +
+                "where p.id = ?";
+        long start = System.currentTimeMillis();
+
+        try {
+            for (long i = 1; i <= count; i++) {
+                PreparedStatement preparedStmt = conn.prepareStatement(queryFriend);
+                preparedStmt.setLong(1, i);
+                preparedStmt.setLong(2, i);
+                preparedStmt.execute();
+                preparedStmt = conn.prepareStatement(queryLikes);
+                preparedStmt.setLong(1, i);
+                preparedStmt.execute();
+
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return -1;
+        }
+
+        long finish = System.currentTimeMillis();
+        return finish - start;
+    }
+
+    @Override
+    public long runGetVerticesWithoutEdgesTest() {
+        long start = System.currentTimeMillis();
+
+        try {
+            String query = "SELECT p.* FROM person p\n" +
+                    "LEFT JOIN friends f on p.ID in (f.Person1_ID, f.Person2_ID)\n" +
+                    "LEFT JOIN likes l on p.ID = l.Person_ID\n" +
+                    "WHERE l.ID IS NULL\n" +
+                    "AND f.ID IS NULL\n";
+            Statement stmt = conn.createStatement();
+            ResultSet rs = stmt.executeQuery(query);
+            query = "SELECT w.* FROM webpage w\n" +
+                    "LEFT JOIN likes l on w.ID = l.Webpage_ID\n" +
+                    "WHERE l.ID IS NULL\n";
+            stmt = conn.createStatement();
+            rs = stmt.executeQuery(query);
+            stmt.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return -1;
+        }
+
+        long finish = System.currentTimeMillis();
+        return finish - start;
+    }
+
+    @Override
+    public long runGetCommonNeighboursTest() {
         return 0;
     }
 
@@ -528,5 +558,21 @@ public class MySQLAdapter implements DatabaseAdapter {
     private void updateStatementWithValues(PreparedStatement preparedStmt, LikeEdge like) throws SQLException {
         preparedStmt.setLong(1, like.personId);
         preparedStmt.setLong(2, like.webpageId);
+    }
+
+    private long countPerson() {
+        String query = "SELECT COUNT(p.ID) FROM Person p";
+        long result = -1;
+        try {
+            Statement stmt = conn.createStatement();
+            ResultSet rs = stmt.executeQuery(query);
+            while (rs.next())
+                result = rs.getLong(1);
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return result;
     }
 }

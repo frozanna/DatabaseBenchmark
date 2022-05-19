@@ -7,6 +7,7 @@ import Data.Person;
 import Data.Webpage;
 import org.neo4j.driver.*;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -108,15 +109,13 @@ public class Neo4jAdapter implements DatabaseAdapter {
     @Override
     public long runUpdateTest(SocialNetworkData data) {
         List<Person> people = data.getPeople();
-        List<FriendEdge> friends = data.getFriends();
         List<Webpage> webpages = data.getWebpages();
-        List<LikeEdge> likes = data.getLikes();
 
         long start = System.currentTimeMillis();
 
         try{
             Session session = driver.session();
-            Transaction tx = null;
+            Transaction tx;
             String personQuery = "MATCH (p:Person {ID: $id}) SET p.age = $age";
             String webpageQuery = "MATCH (p:Webpage {ID: $id}) SET p.url = $url";
 
@@ -193,9 +192,7 @@ public class Neo4jAdapter implements DatabaseAdapter {
     @Override
     public long runDeleteTest(SocialNetworkData data) {
         List<Person> people = data.getPeople();
-        List<FriendEdge> friends = data.getFriends();
         List<Webpage> webpages = data.getWebpages();
-        List<LikeEdge> likes = data.getLikes();
 
 
         long start = System.currentTimeMillis();
@@ -241,17 +238,13 @@ public class Neo4jAdapter implements DatabaseAdapter {
         try{
             Session session = driver.session();
             Transaction tx = session.beginTransaction();
-            int i = 0;
 
             String query = "MATCH (p:Person) WHERE p.Age > 30 RETURN p";
 
             Result result = tx.run(query);
-            while (result.hasNext()) {
+            while (result.hasNext())
                 result.next();
-                i++;
-            }
 
-//            System.out.println(i);
             tx.close();
             session.close();
         } catch (Exception e) {
@@ -270,17 +263,12 @@ public class Neo4jAdapter implements DatabaseAdapter {
         try{
             Session session = driver.session();
             Transaction tx = session.beginTransaction();
-            int i = 0;
-
             String query = "MATCH (p: Person)-[LIKES]->(w: Webpage) RETURN p.Surname, w.Url";
 
             Result result = tx.run(query);
-            while (result.hasNext()) {
+            while (result.hasNext())
                 result.next();
-                i++;
-            }
 
-//            System.out.println(i);
             tx.close();
             session.close();
         } catch (Exception e) {
@@ -299,15 +287,12 @@ public class Neo4jAdapter implements DatabaseAdapter {
         try{
             Session session = driver.session();
             Transaction tx = session.beginTransaction();
-            int i = 0;
 
             String query = "MATCH (p:Person) WHERE p.Name STARTS WITH 'KR' RETURN p";
 
             Result result = tx.run(query);
-            while (result.hasNext()) {
+            while (result.hasNext())
                 result.next();
-                i++;
-            }
 
 //            System.out.println(i);
             tx.close();
@@ -329,15 +314,11 @@ public class Neo4jAdapter implements DatabaseAdapter {
         try{
             Session session = driver.session();
             Transaction tx = session.beginTransaction();
-            int i = 0;
-
             String query = "MATCH (w:Webpage) WHERE w.ID > 75000 AND w.Url ENDS WITH '0.html' AND w.CreationDate >= date({year:2000,month:1,day:1}) RETURN w";
 
             Result result = tx.run(query);
-            while (result.hasNext()) {
+            while (result.hasNext())
                 result.next();
-                i++;
-            }
 
 //            System.out.println(i);
             tx.close();
@@ -359,17 +340,13 @@ public class Neo4jAdapter implements DatabaseAdapter {
         try{
             Session session = driver.session();
             Transaction tx = session.beginTransaction();
-            int i = 0;
 
             String query = "MATCH (p:Person)-[r]->() RETURN p.ID, count(r) AS NeighboursCount";
 
             Result result = tx.run(query);
-            while (result.hasNext()) {
+            while (result.hasNext())
                 result.next();
-                i++;
-            }
 
-//            System.out.println(i);
             tx.close();
             session.close();
         } catch (Exception e) {
@@ -389,17 +366,14 @@ public class Neo4jAdapter implements DatabaseAdapter {
         try{
             Session session = driver.session();
             Transaction tx = session.beginTransaction();
-            int i = 0;
 
             String query = "MATCH (p:Person) RETURN p.Surname, AVG(toFloat(p.Age)) As AvgAge";
 
             Result result = tx.run(query);
             while (result.hasNext()) {
                 result.next();
-                i++;
             }
 
-//            System.out.println(i);
             tx.close();
             session.close();
         } catch (Exception e) {
@@ -413,8 +387,85 @@ public class Neo4jAdapter implements DatabaseAdapter {
     }
 
     @Override
-    public long runGetAllNeighboursTest() {
-        return 0;
+    public long runGetNeighboursTest() {
+        long start = System.currentTimeMillis();
+
+        try{
+            Session session = driver.session();
+            Transaction tx = session.beginTransaction();
+
+            String query = "MATCH (p:Person)-->(n) RETURN p.ID, n";
+
+            Result result = tx.run(query);
+            while (result.hasNext())
+                result.next();
+
+            tx.close();
+            session.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return -1;
+        }
+
+
+        long finish = System.currentTimeMillis();
+        return finish - start;
+    }
+
+    @Override
+    public long runGetVerticesWithoutEdgesTest() {
+        long start = System.currentTimeMillis();
+
+        try{
+            Session session = driver.session();
+            Transaction tx = session.beginTransaction();
+
+            String query = "MATCH (n) WHERE NOT (n)--() RETURN n";
+
+            Result result = tx.run(query);
+            while (result.hasNext()) {
+                result.next();
+            }
+
+            tx.close();
+            session.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return -1;
+        }
+
+        long finish = System.currentTimeMillis();
+        return finish - start;
+    }
+
+    @Override
+    public long runGetCommonNeighboursTest() {
+        int verticesToCheck[] = { 5, 50, 500, 5000, 50000};
+
+        long start = System.currentTimeMillis();
+
+        try{
+            Session session = driver.session();
+            Transaction tx = session.beginTransaction();
+
+            for (int id : verticesToCheck) {
+                String query = "MATCH (n) WHERE NOT (n)--() RETURN n";
+
+                Result result = tx.run(query);
+                while (result.hasNext()) {
+                    result.next();
+                }
+            }
+
+            tx.close();
+            session.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return -1;
+        }
+
+        long finish = System.currentTimeMillis();
+        return finish - start;
     }
 
     private void insertData(List<Person> people, List<FriendEdge> friends, List<Webpage> webpages, List<LikeEdge> likes) {

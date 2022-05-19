@@ -199,19 +199,13 @@ public class OrientDBAdapter implements DatabaseAdapter {
         long start = System.currentTimeMillis();
 
         try{
-            int i = 0;
-
             String query = "SELECT * from Person where Age > 30";
             OResultSet rs = db.query(query);
 
-            while (rs.hasNext()) {
+            while (rs.hasNext())
                 rs.next();
-                i++;
-            }
 
             rs.close();
-
-//            System.out.println(i);
         } catch (Exception e) {
             e.printStackTrace();
             return -1;
@@ -226,19 +220,13 @@ public class OrientDBAdapter implements DatabaseAdapter {
         long start = System.currentTimeMillis();
 
         try{
-            int i = 0;
-
             String query = "SELECT Surname, OUT('Likes').Url FROM Person";
             OResultSet rs = db.query(query);
 
-            while (rs.hasNext()) {
+            while (rs.hasNext())
                 rs.next();
-                i++;
-            }
 
             rs.close();
-
-//            System.out.println(i);
         } catch (Exception e) {
             e.printStackTrace();
             return -1;
@@ -253,19 +241,13 @@ public class OrientDBAdapter implements DatabaseAdapter {
         long start = System.currentTimeMillis();
 
         try{
-            int i = 0;
-
             String query = "select * from Person where Name like 'KR%'";
             OResultSet rs = db.query(query);
 
-            while (rs.hasNext()) {
+            while (rs.hasNext())
                 rs.next();
-                i++;
-            }
 
             rs.close();
-
-//            System.out.println(i);
         } catch (Exception e) {
             e.printStackTrace();
             return -1;
@@ -280,19 +262,13 @@ public class OrientDBAdapter implements DatabaseAdapter {
         long start = System.currentTimeMillis();
 
         try{
-            int i = 0;
-
             String query = "SELECT * FROM Webpage WHERE ID > 75000 AND Url LIKE '%0.html' AND CreationDate >= '2000-01-01'";
             OResultSet rs = db.query(query);
 
-            while (rs.hasNext()) {
+            while (rs.hasNext())
                 rs.next();
-                i++;
-            }
 
             rs.close();
-
-//            System.out.println(i);
         } catch (Exception e) {
             e.printStackTrace();
             return -1;
@@ -307,19 +283,13 @@ public class OrientDBAdapter implements DatabaseAdapter {
         long start = System.currentTimeMillis();
 
         try{
-            int i = 0;
-
             String query = "SELECT ID, OUT().size() FROM Person";
             OResultSet rs = db.query(query);
 
-            while (rs.hasNext()) {
+            while (rs.hasNext())
                 rs.next();
-                i++;
-            }
 
             rs.close();
-
-//            System.out.println(i);
         } catch (Exception e) {
             e.printStackTrace();
             return -1;
@@ -334,19 +304,13 @@ public class OrientDBAdapter implements DatabaseAdapter {
         long start = System.currentTimeMillis();
 
         try{
-            int i = 0;
-
             String query = "SELECT Surname, AVG(Age.asFloat()) AS AvgAge FROM Person GROUP BY Surname";
             OResultSet rs = db.query(query);
 
-            while (rs.hasNext()) {
+            while(rs.hasNext())
                 rs.next();
-                i++;
-            }
 
             rs.close();
-
-//            System.out.println(i);
         } catch (Exception e) {
             e.printStackTrace();
             return -1;
@@ -357,7 +321,49 @@ public class OrientDBAdapter implements DatabaseAdapter {
     }
 
     @Override
-    public long runGetAllNeighboursTest() {
+    public long runGetNeighboursTest() {
+        long start = System.currentTimeMillis();
+
+        try{
+            String query = "SELECT ID, out().ID as neighbourId, out().Name, out().Surname, out().Sex, out().Age, out().URL, out().CreationDate FROM Person";
+            OResultSet rs = db.query(query);
+
+            while(rs.hasNext())
+                rs.next();
+
+            rs.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return -1;
+        }
+
+        long finish = System.currentTimeMillis();
+        return finish - start;
+    }
+
+    @Override
+    public long runGetVerticesWithoutEdgesTest() {
+        long start = System.currentTimeMillis();
+
+        try{
+            String query = "SELECT * FROM V WHERE out().size() = 0 AND in().size() = 0";
+            OResultSet rs = db.query(query);
+
+            while(rs.hasNext())
+                rs.next();
+
+            rs.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return -1;
+        }
+
+        long finish = System.currentTimeMillis();
+        return finish - start;
+    }
+
+    @Override
+    public long runGetCommonNeighboursTest() {
         return 0;
     }
 

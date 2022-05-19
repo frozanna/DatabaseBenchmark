@@ -32,5 +32,7 @@ public interface DatabaseAdapter {
     long runCountNeighboursTest();
     long runGroupByTest();
 
-    long runGetAllNeighboursTest();
+    long runGetNeighboursTest();
+    long runGetVerticesWithoutEdgesTest();
+    long runGetCommonNeighboursTest();
 }

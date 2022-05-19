@@ -14,7 +14,9 @@ public enum TestType {
     COUNT_NEIGHBOURS("CountNeighboursTest", TestCategory.QUERY),
     GROUP_BY("GroupByTest", TestCategory.QUERY),
 
-    GET_ALL_NEIGHBOURS("GetAllNeighboursTest", TestCategory.QUERY);
+    GET_NEIGHBOURS("GetNeighboursTest", TestCategory.QUERY),
+    GET_VERTICES_WITHOUT_EDGES("GetVerticesWithoutEdgesTest", TestCategory.QUERY),
+    GET_COMMON_NEIGHBOURS("GetCommonNeighboursTest", TestCategory.QUERY);
 
     private final String text;
     private final TestCategory category;

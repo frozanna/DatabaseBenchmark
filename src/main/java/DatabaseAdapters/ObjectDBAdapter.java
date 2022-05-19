@@ -14,6 +14,7 @@ import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import static DatabaseAdapters.AdapterUtils.localdateToDate;
 
@@ -307,8 +308,55 @@ public class ObjectDBAdapter implements DatabaseAdapter {
     }
 
     @Override
-    public long runGetAllNeighboursTest() {
+    public long runGetNeighboursTest() {
+        long countPerson = countPerson();
+
+        TypedQuery<PersonEntity> query;
+        long start = System.currentTimeMillis();
+        try{
+            for (long i = 1; i <= countPerson; i++){
+
+                query = em.createQuery("SELECT p FROM Person p WHERE p.id = :id", PersonEntity.class);
+                PersonEntity entity = query.setParameter("id", i).getSingleResult();
+                Set<PersonEntity> ps = entity.getFriends();
+                Set<WebpageEntity> ws = entity.getLikes();
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return -1;
+        }
+
+        long finish = System.currentTimeMillis();
+        return finish - start;
+    }
+
+    @Override
+    public long runGetVerticesWithoutEdgesTest() {
+        long start = System.currentTimeMillis();
+        try{
+            TypedQuery<PersonEntity> queryPerson = em.createQuery("SELECT p FROM Person p WHERE p.friends.size() = 0 AND p.likes.size() = 0", PersonEntity.class);
+            List<PersonEntity> resultsPerson = queryPerson.getResultList();
+            TypedQuery<WebpageEntity> queryWebpage = em.createQuery("SELECT w FROM Webpage w WHERE w.likedBy.size() = 0", WebpageEntity.class);
+            List<WebpageEntity> results = queryWebpage.getResultList();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return -1;
+        }
+
+        long finish = System.currentTimeMillis();
+        return finish - start;
+    }
+
+    @Override
+    public long runGetCommonNeighboursTest() {
         return 0;
+    }
+
+    private long countPerson() {
+        Query query = em.createQuery("SELECT p FROM Person p");
+        List results = query.getResultList();
+        return results.size();
     }
 
 
