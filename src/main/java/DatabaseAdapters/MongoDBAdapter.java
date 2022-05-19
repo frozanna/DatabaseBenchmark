@@ -252,14 +252,9 @@ public class MongoDBAdapter implements DatabaseAdapter {
             searchQuery.put("age", new BasicDBObject("$gt", 30));
             DBCursor cursor = peopleCollection.find(searchQuery);
 
-            int i = 0;
-
-            while (cursor.hasNext()) {
+            while (cursor.hasNext())
                 cursor.next();
-                i++;
-            }
 
-//            System.out.println(i);
         } catch (Exception e) {
             e.printStackTrace();
             return -1;
@@ -298,8 +293,6 @@ public class MongoDBAdapter implements DatabaseAdapter {
                     }
                 }
             }
-
-//            System.out.println(i);
         } catch (Exception e) {
             e.printStackTrace();
             return -1;
@@ -322,7 +315,6 @@ public class MongoDBAdapter implements DatabaseAdapter {
             while(cursor.hasNext())
                 cursor.next();
 
-//            System.out.println(i);
         } catch (Exception e) {
             e.printStackTrace();
             return -1;
@@ -347,7 +339,6 @@ public class MongoDBAdapter implements DatabaseAdapter {
             while(cursor.hasNext())
                 cursor.next();
 
-//            System.out.println(i);
         } catch (Exception e) {
             e.printStackTrace();
             return -1;
@@ -389,7 +380,6 @@ public class MongoDBAdapter implements DatabaseAdapter {
             ArrayList<Document> result = peopleCollection.aggregate(Arrays.asList(new Document("$group",
                     new Document("_id", "$surname").append("avgAge", new Document("$avg", "$age")))))
                     .into(new ArrayList<>());
-
         } catch (Exception e) {
             e.printStackTrace();
             return -1;
@@ -467,14 +457,7 @@ public class MongoDBAdapter implements DatabaseAdapter {
             searchQuery.put("likes", Arrays.asList());
             ArrayList<Document> resultsPeople = peopleCollection.find(searchQuery).into(new ArrayList<>());
 
-
-            System.out.println(resultsPeople.size());
-//            while(resultsPeople.cursor().hasNext())
-//                results.add(resultsPeople.cursor().next());
-
-
             ArrayList<Document> webpages = webpagesCollection.find().into(new ArrayList<>());
-
             for(Document d : webpages ) {
                 BasicDBObject searchLikes = new BasicDBObject();
                 searchLikes.put("likes", d.getLong("id"));
@@ -482,8 +465,6 @@ public class MongoDBAdapter implements DatabaseAdapter {
                 if(countLikes == 0)
                     results.add(d);
             }
-
-            System.out.println(results.size());
         } catch (Exception e) {
             e.printStackTrace();
             return -1;

@@ -446,18 +446,20 @@ public class Neo4jAdapter implements DatabaseAdapter {
 
         try{
             Session session = driver.session();
-            Transaction tx = session.beginTransaction();
+            Transaction tx;
 
             for (int id : verticesToCheck) {
+                tx = session.beginTransaction();
                 String query = "MATCH (n) WHERE NOT (n)--() RETURN n";
 
                 Result result = tx.run(query);
                 while (result.hasNext()) {
                     result.next();
                 }
+
+                tx.close();
             }
 
-            tx.close();
             session.close();
         } catch (Exception e) {
             e.printStackTrace();
