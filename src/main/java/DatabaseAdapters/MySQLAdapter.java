@@ -243,7 +243,6 @@ public class MySQLAdapter implements DatabaseAdapter {
 
             Statement stmt = conn.createStatement();
             ResultSet rs = stmt.executeQuery(query);
-            while(rs.next()) {}
             stmt.close();
         } catch (Exception e) {
             e.printStackTrace();
@@ -263,7 +262,6 @@ public class MySQLAdapter implements DatabaseAdapter {
 
             Statement stmt = conn.createStatement();
             ResultSet rs = stmt.executeQuery(query);
-            while(rs.next()) {}
             stmt.close();
         } catch (Exception e) {
             e.printStackTrace();
@@ -283,7 +281,6 @@ public class MySQLAdapter implements DatabaseAdapter {
 
             Statement stmt = conn.createStatement();
             ResultSet rs = stmt.executeQuery(query);
-            while(rs.next()) {}
             stmt.close();
         } catch (Exception e) {
             e.printStackTrace();
@@ -303,7 +300,6 @@ public class MySQLAdapter implements DatabaseAdapter {
 
             Statement stmt = conn.createStatement();
             ResultSet rs = stmt.executeQuery(query);
-            while(rs.next()) {}
             stmt.close();
         } catch (Exception e) {
             e.printStackTrace();
@@ -330,7 +326,6 @@ public class MySQLAdapter implements DatabaseAdapter {
                     "GROUP BY p.ID";
             Statement stmt = conn.createStatement();
             ResultSet rs = stmt.executeQuery(query);
-            while(rs.next()) {}
             stmt.close();
         } catch (Exception e) {
             e.printStackTrace();
@@ -350,7 +345,6 @@ public class MySQLAdapter implements DatabaseAdapter {
 
             Statement stmt = conn.createStatement();
             ResultSet rs = stmt.executeQuery(query);
-            while(rs.next()) {}
             stmt.close();
         } catch (Exception e) {
             e.printStackTrace();
@@ -401,7 +395,6 @@ public class MySQLAdapter implements DatabaseAdapter {
                 preparedStmt = conn.prepareStatement(queryLikes);
                 preparedStmt.setLong(1, i);
                 rs = preparedStmt.executeQuery();
-                while (rs.next()) {}
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -431,7 +424,6 @@ public class MySQLAdapter implements DatabaseAdapter {
                     "WHERE l.ID IS NULL\n";
             stmt = conn.createStatement();
             rs = stmt.executeQuery(query);
-//            while (rs.next()) {}
             stmt.close();
         } catch (Exception e) {
             e.printStackTrace();
