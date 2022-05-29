@@ -15,7 +15,7 @@ public enum TestType {
     GROUP_BY("GroupByTest", TestCategory.QUERY),
 
     GET_NEIGHBOURS("GetNeighboursTest", TestCategory.QUERY),
-    GET_VERTICES_WITHOUT_EDGES("GetVerticesWithoutEdgesTest", TestCategory.QUERY);
+    GET_VERTICES_WITHOUT_EDGES("GetVerticesWithoutEdgesTest", TestCategory.QUERY),
     GET_COMMON_NEIGHBOURS("GetCommonNeighboursTest", TestCategory.QUERY),
     PATH_EXISTENCE("PathExistenceTest", TestCategory.QUERY);
 
