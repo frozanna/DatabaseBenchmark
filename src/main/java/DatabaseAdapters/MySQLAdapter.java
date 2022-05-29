@@ -5,9 +5,11 @@ import Data.FriendEdge;
 import Data.LikeEdge;
 import Data.Person;
 import Data.Webpage;
+import DatabaseAdapters.ObjectDBEntities.PersonEntity;
 
 import java.sql.*;
-import java.util.List;
+import java.sql.Date;
+import java.util.*;
 
 public class MySQLAdapter implements DatabaseAdapter {
     private Connection conn;
@@ -390,7 +392,6 @@ public class MySQLAdapter implements DatabaseAdapter {
                 preparedStmt.setLong(1, i);
                 preparedStmt.setLong(2, i);
                 ResultSet rs = preparedStmt.executeQuery();
-                while (rs.next()) {}
 
                 preparedStmt = conn.prepareStatement(queryLikes);
                 preparedStmt.setLong(1, i);
@@ -436,7 +437,161 @@ public class MySQLAdapter implements DatabaseAdapter {
 
     @Override
     public long runGetCommonNeighboursTest() {
-        return 0;
+        long verticesToCheck[] = { 5, 10, 25, 50, 250, 500, 1000, 5000, 10000, 25000, 50000};
+
+        String queryFriend = "SELECT * FROM person p\n" +
+                "JOIN friends fo ON fo.Person1_ID = p.ID\n" +
+                "WHERE fo.Person1_ID IN\n" +
+                "(SELECT f.Person2_ID\n" +
+                "FROM friends f\n" +
+                "WHERE f.Person1_ID = ?\n" +
+                "UNION ALL\n" +
+                "SELECT f.Person1_ID FROM friends f\n" +
+                "WHERE f.Person2_ID = ?)\n" +
+                "AND fo.Person2_ID = ?\n" +
+                "UNION ALL\n" +
+                "SELECT * FROM person p\n" +
+                "JOIN friends fo ON fo.Person2_ID = p.ID\n" +
+                "WHERE fo.Person2_ID IN\n" +
+                "(SELECT f.Person2_ID\n" +
+                "FROM friends f\n" +
+                "WHERE f.Person1_ID = ?\n" +
+                "UNION ALL\n" +
+                "SELECT f.Person1_ID FROM friends f\n" +
+                "WHERE f.Person2_ID = ?)\n" +
+                "AND fo.Person1_ID = ?";
+
+        String queryLikes = "SELECT * from webpage w\n" +
+                "JOIN likes lo ON lo.Webpage_ID = w.ID\n" +
+                "WHERE lo.Person_ID = ?\n" +
+                "AND lo.Webpage_ID IN (\n" +
+                "SELECT l.Webpage_ID FROM likes l\n" +
+                "WHERE l.Person_ID = ?)";
+
+        long start = System.currentTimeMillis();
+
+        try {
+            for (long id : verticesToCheck) {
+                PreparedStatement preparedStmt = conn.prepareStatement(queryFriend);
+                preparedStmt.setLong(1, 1);
+                preparedStmt.setLong(2, 1);
+                preparedStmt.setLong(3, id);
+                preparedStmt.setLong(4, 1);
+                preparedStmt.setLong(5, 1);
+                preparedStmt.setLong(6, id);
+                ResultSet rs = preparedStmt.executeQuery();
+
+                preparedStmt = conn.prepareStatement(queryLikes);
+                preparedStmt.setLong(1, id);
+                preparedStmt.setLong(2, 1);
+                rs = preparedStmt.executeQuery();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return -1;
+        }
+
+        long finish = System.currentTimeMillis();
+        return finish - start;
+    }
+
+    @Override
+    public long runPathExistenceTest() {
+        long start = System.currentTimeMillis();
+
+        try {
+            long personStart = 1;
+            long webpageEnd = 90000;
+
+            String query = "SELECT p.id, MAX(IF(l.Webpage_ID = ?,1,0)) AS end\n" +
+                    "FROM person p\n" +
+                    "JOIN friends f on p.ID in (f.Person1_ID, f.Person2_ID)\n" +
+                    "JOIN likes l on p.ID = l.Person_ID\n" +
+                    "WHERE f.Person1_ID = ? OR f.Person2_ID = ?\n" +
+                    "GROUP BY p.ID;";
+
+            ResultSet rs;
+            PreparedStatement preparedStmt = conn.prepareStatement(query);
+            preparedStmt.setLong(1, webpageEnd);
+
+            Set<Long> visited = new HashSet<>();
+            LinkedList<Long> queue = new LinkedList<>();
+
+            visited.add(personStart);
+            queue.add(personStart);
+
+            boolean cont = true;
+
+            while (queue.size() != 0 && cont)
+            {
+                Long curr = queue.poll();
+
+                preparedStmt.setLong(2, curr);
+                preparedStmt.setLong(3, curr);
+                rs = preparedStmt.executeQuery();
+
+                while (rs.next()) {
+                    long id = rs.getLong("id");
+                    int hasEnd = rs.getInt("end");
+
+                    if(hasEnd > 0) {
+                        cont = false;
+                        break;
+                    }
+
+                    if(!visited.contains(id)) {
+                        visited.add(id);
+                        queue.add(id);
+                    }
+                }
+            }
+            preparedStmt.close();
+
+
+            webpageEnd = 100000;
+            visited = new HashSet<>();
+            queue = new LinkedList<>();
+
+            preparedStmt = conn.prepareStatement(query);
+            preparedStmt.setLong(1, webpageEnd);
+
+            visited.add(personStart);
+            queue.add(personStart);
+
+            cont = true;
+
+            while (queue.size() != 0 && cont)
+            {
+                Long curr = queue.poll();
+
+                preparedStmt.setLong(2, curr);
+                preparedStmt.setLong(3, curr);
+                rs = preparedStmt.executeQuery();
+
+                while (rs.next()) {
+                    long id = rs.getLong("id");
+                    int hasEnd = rs.getInt("end");
+
+                    if(hasEnd > 0) {
+                        cont = false;
+                        break;
+                    }
+
+                    if(!visited.contains(id)) {
+                        visited.add(id);
+                        queue.add(id);
+                    }
+                }
+            }
+            preparedStmt.close();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return -1;
+        }
+
+        long finish = System.currentTimeMillis();
+        return finish - start;
     }
 
     private void insertData(List<Person> people, List<FriendEdge> friends, List<Webpage> webpages, List<LikeEdge> likes) throws SQLException {

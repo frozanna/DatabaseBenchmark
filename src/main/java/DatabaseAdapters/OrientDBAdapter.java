@@ -364,7 +364,63 @@ public class OrientDBAdapter implements DatabaseAdapter {
 
     @Override
     public long runGetCommonNeighboursTest() {
-        return 0;
+        long verticesToCheck[] = { 5, 10, 25, 50, 250, 500, 1000, 5000, 10000, 25000, 50000};
+
+        long start = System.currentTimeMillis();
+
+        try{
+
+            for (long id : verticesToCheck) {
+                String query = "SELECT * FROM (SELECT expand(out()) FROM Person WHERE ID = " + 1 + ") WHERE " + id + " IN in().ID";
+                OResultSet rs = db.query(query);
+
+                while(rs.hasNext())
+                    rs.next();
+
+                rs.close();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return -1;
+        }
+
+        long finish = System.currentTimeMillis();
+        return finish - start;
+    }
+
+    @Override
+    public long runPathExistenceTest() {
+        long start = System.currentTimeMillis();
+
+        try{
+            String query = "SELECT shortestPath($from, $to, 'OUT', null)\n" +
+                    "  LET \n" +
+                    "    $from = (SELECT FROM Person WHERE ID = 1), \n" +
+                    "    $to = (SELECT FROM Webpage WHERE ID = 90000)";
+            OResultSet rs = db.query(query);
+
+            while(rs.hasNext())
+                rs.next();
+
+            rs.close();
+
+            query = "SELECT shortestPath($from, $to, 'OUT', null)\n" +
+                    "  LET \n" +
+                    "    $from = (SELECT FROM Person WHERE ID = 1), \n" +
+                    "    $to = (SELECT FROM Webpage WHERE ID = 100000)";
+            rs = db.query(query);
+
+            while(rs.hasNext())
+                rs.next();
+
+            rs.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return -1;
+        }
+
+        long finish = System.currentTimeMillis();
+        return finish - start;
     }
 
     private void insertData(List<Person> people, List<FriendEdge> friends, List<Webpage> webpages, List<LikeEdge> likes) {

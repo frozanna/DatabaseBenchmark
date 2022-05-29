@@ -35,4 +35,5 @@ public interface DatabaseAdapter {
     long runGetNeighboursTest();
     long runGetVerticesWithoutEdgesTest();
     long runGetCommonNeighboursTest();
+    long runPathExistenceTest();
 }

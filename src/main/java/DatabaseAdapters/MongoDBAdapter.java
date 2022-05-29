@@ -5,6 +5,8 @@ import Data.FriendEdge;
 import Data.LikeEdge;
 import Data.Person;
 import Data.Webpage;
+import DatabaseAdapters.ObjectDBEntities.PersonEntity;
+import DatabaseAdapters.ObjectDBEntities.WebpageEntity;
 import com.mongodb.*;
 import com.mongodb.client.AggregateIterable;
 import com.mongodb.client.FindIterable;
@@ -476,7 +478,121 @@ public class MongoDBAdapter implements DatabaseAdapter {
 
     @Override
     public long runGetCommonNeighboursTest() {
-        return 0;
+        long verticesToCheck[] = { 5, 10, 25, 50, 250, 500, 1000, 5000, 10000, 25000, 50000};
+
+        long start = System.currentTimeMillis();
+
+        try {
+            MongoCollection<Document> peopleCollection = mongoDatabase.getCollection("People");
+            MongoCollection<Document> webpagesCollection = mongoDatabase.getCollection("Webpages");
+
+            for (long id : verticesToCheck) {
+                BasicDBObject searchQuery = new BasicDBObject();
+                searchQuery.put("id", 1);
+                Document person1 = peopleCollection.find(searchQuery).first();
+                searchQuery = new BasicDBObject();
+                searchQuery.put("id", id);
+                Document person2 = peopleCollection.find(searchQuery).first();
+
+                List<Long> person1Friends = person1.getList("friends", Long.class);
+                List<Long> person2Friends = person2.getList("friends", Long.class);
+
+                List<Long> person1Likes = person1.getList("likes", Long.class);
+                List<Long> person2Likes = person2.getList("likes", Long.class);
+
+                List<Long> commonFriends = new ArrayList<>(person1Friends);
+                commonFriends.retainAll(person2Friends);
+
+                List<Long> commonLikes = new ArrayList<>(person1Likes);
+                commonLikes.retainAll(person2Likes);
+
+                searchQuery = new BasicDBObject();
+                searchQuery.put("id", new BasicDBObject("$in", commonFriends));
+                ArrayList<Document> resultsFriends = peopleCollection.find(searchQuery).into(new ArrayList<>());
+
+                searchQuery = new BasicDBObject();
+                searchQuery.put("id", new BasicDBObject("$in", commonLikes));
+                ArrayList<Document> resultsLikes = webpagesCollection.find(searchQuery).into(new ArrayList<>());
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return -1;
+        }
+
+        long finish = System.currentTimeMillis();
+        return finish - start;
+    }
+
+    @Override
+    public long runPathExistenceTest() {
+        long start = System.currentTimeMillis();
+
+        try {
+            MongoCollection<Document> peopleCollection = mongoDatabase.getCollection("People");
+
+            Set<Long> visited = new HashSet<>();
+            LinkedList<Long> queue = new LinkedList<>();
+
+            long personStart = 1;
+            long webpageEnd = 90000;
+
+            BasicDBObject searchLikes;
+            Document curr;
+
+            visited.add(personStart);
+            queue.add(personStart);
+
+            while (queue.size() != 0)
+            {
+                Long currId = queue.poll();
+                searchLikes = new BasicDBObject();
+                searchLikes.put("id", currId);
+                curr = peopleCollection.find(searchLikes).first();
+
+                if(curr.getList("likes", Long.class).contains(webpageEnd))
+                    break;
+
+                for (Long neighbour : curr.getList("friends", Long.class)) {
+                    if (!visited.contains(neighbour)) {
+                        visited.add(neighbour);
+                        queue.add(neighbour);
+                    }
+                }
+            }
+
+            webpageEnd = 100000;
+
+            visited = new HashSet<>();
+            queue = new LinkedList<>();
+
+            visited.add(personStart);
+            queue.add(personStart);
+
+            while (queue.size() != 0)
+            {
+                Long currId = queue.poll();
+                searchLikes = new BasicDBObject();
+                searchLikes.put("id", currId);
+                curr = peopleCollection.find(searchLikes).first();
+
+                if(curr.getList("likes", Long.class).contains(webpageEnd))
+                    break;
+
+                for (Long neighbour : curr.getList("friends", Long.class)) {
+                    if (!visited.contains(neighbour)) {
+                        visited.add(neighbour);
+                        queue.add(neighbour);
+                    }
+                }
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return -1;
+        }
+
+        long finish = System.currentTimeMillis();
+        return finish - start;
     }
 
     private long countPerson() {

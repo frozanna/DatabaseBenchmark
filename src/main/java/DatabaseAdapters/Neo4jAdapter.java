@@ -423,9 +423,8 @@ public class Neo4jAdapter implements DatabaseAdapter {
             String query = "MATCH (n) WHERE NOT (n)--() RETURN n";
 
             Result result = tx.run(query);
-            while (result.hasNext()) {
+            while (result.hasNext())
                 result.next();
-            }
 
             tx.close();
             session.close();
@@ -440,7 +439,7 @@ public class Neo4jAdapter implements DatabaseAdapter {
 
     @Override
     public long runGetCommonNeighboursTest() {
-        int verticesToCheck[] = { 5, 50, 500, 5000, 50000};
+        long verticesToCheck[] = { 5, 10, 25, 50, 250, 500, 1000, 5000, 10000, 25000, 50000};
 
         long start = System.currentTimeMillis();
 
@@ -448,11 +447,13 @@ public class Neo4jAdapter implements DatabaseAdapter {
             Session session = driver.session();
             Transaction tx;
 
-            for (int id : verticesToCheck) {
+            for (long id : verticesToCheck) {
                 tx = session.beginTransaction();
-                String query = "MATCH (n) WHERE NOT (n)--() RETURN n";
-
-                Result result = tx.run(query);
+                String query = "MATCH (n1:Person {ID: $id1})-->(c)<--(n2:Person {ID: $id2}) RETURN c";
+                Map<String, Object> parameters = new HashMap<>();
+                parameters.put("id1", 1);
+                parameters.put("id2", id);
+                Result result = tx.run(query, parameters);
                 while (result.hasNext()) {
                     result.next();
                 }
@@ -460,6 +461,45 @@ public class Neo4jAdapter implements DatabaseAdapter {
                 tx.close();
             }
 
+            session.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return -1;
+        }
+
+        long finish = System.currentTimeMillis();
+        return finish - start;
+    }
+
+    @Override
+    public long runPathExistenceTest() {
+        long start = System.currentTimeMillis();
+
+        try{
+            Session session = driver.session();
+            Transaction tx = session.beginTransaction();
+            String query = "MATCH (p:Person {ID: 1} ),\n" +
+                    "      (w:Webpage {ID: 90000}),\n" +
+                    "      path = shortestPath((p)-[*]->(w))\n" +
+                    "RETURN path";
+            Result result = tx.run(query);
+            while (result.hasNext()) {
+                result.next();
+            }
+
+            tx.close();
+
+            tx = session.beginTransaction();
+            query = "MATCH (p:Person {ID: 1} ),\n" +
+                    "      (w:Webpage {ID: 100000}),\n" +
+                    "      path = shortestPath((p)-[*]->(w))\n" +
+                    "RETURN path";
+            result = tx.run(query);
+            while (result.hasNext()) {
+                result.next();
+            }
+
+            tx.close();
             session.close();
         } catch (Exception e) {
             e.printStackTrace();

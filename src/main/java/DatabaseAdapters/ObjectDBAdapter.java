@@ -7,14 +7,13 @@ import Data.FriendEdge;
 import Data.LikeEdge;
 import Data.Person;
 import Data.Webpage;
+import com.sun.org.apache.xpath.internal.operations.Bool;
 
 
 import javax.persistence.*;
 import java.time.LocalDate;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
+import java.util.stream.Collectors;
 
 import static DatabaseAdapters.AdapterUtils.localdateToDate;
 
@@ -246,7 +245,6 @@ public class ObjectDBAdapter implements DatabaseAdapter {
             TypedQuery<PersonEntity> query = em.createQuery("SELECT p FROM Person p WHERE p.name like \"KR%\"", PersonEntity.class);
             List<PersonEntity> results = query.getResultList();
 
-//            System.out.println(results.size());
         } catch (Exception e) {
             e.printStackTrace();
             return -1;
@@ -336,9 +334,15 @@ public class ObjectDBAdapter implements DatabaseAdapter {
         long start = System.currentTimeMillis();
         try{
             TypedQuery<PersonEntity> queryPerson = em.createQuery("SELECT p FROM Person p WHERE p.friends.size() = 0 AND p.likes.size() = 0", PersonEntity.class);
-            List<PersonEntity> resultsPerson = queryPerson.getResultList();
-            TypedQuery<WebpageEntity> queryWebpage = em.createQuery("SELECT w FROM Webpage w WHERE w.likedBy.size() = 0", WebpageEntity.class);
-            List<WebpageEntity> results = queryWebpage.getResultList();
+            List<PersonEntity> resultsPeople = queryPerson.getResultList();
+
+            List<WebpageEntity> webpages = em.createQuery("SELECT w FROM Webpage w", WebpageEntity.class).getResultList();
+            List<WebpageEntity> resultsWebpages = new ArrayList<>();
+            for (WebpageEntity w : webpages ) {
+                if (w.getLikedBy().size() == 0)
+                    resultsWebpages.add(w);
+            }
+
         } catch (Exception e) {
             e.printStackTrace();
             return -1;
@@ -350,7 +354,97 @@ public class ObjectDBAdapter implements DatabaseAdapter {
 
     @Override
     public long runGetCommonNeighboursTest() {
-        return 0;
+        long verticesToCheck[] = { 5, 10, 25, 50, 250, 500, 1000, 5000, 10000, 25000, 50000};
+
+        long start = System.currentTimeMillis();
+        try{
+            for (long id : verticesToCheck) {
+                PersonEntity person1 = em.find(PersonEntity.class, 1);
+                PersonEntity person2 = em.find(PersonEntity.class, id);
+
+                Set<PersonEntity> friendsPerson1 = person1.getFriends();
+                Set<PersonEntity> friendsPerson2 = person2.getFriends();
+
+                Set<WebpageEntity> likesPerson1 = person1.getLikes();
+                Set<WebpageEntity> likesPerson2 = person2.getLikes();
+
+                Set<PersonEntity> resultFriends = new HashSet<>(friendsPerson1);
+                resultFriends.retainAll(friendsPerson2);
+                Set<WebpageEntity> resultLikes = new HashSet<>(likesPerson1);
+                resultLikes.retainAll(likesPerson2);
+
+                if (resultFriends.size() == 0)
+                    continue;
+
+//                System.out.println(resultFriends.iterator().next().getId());
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return -1;
+        }
+
+        long finish = System.currentTimeMillis();
+        return finish - start;
+    }
+
+    @Override
+    public long runPathExistenceTest() {
+        long start = System.currentTimeMillis();
+        try{
+            Set<PersonEntity> visited = new HashSet<>();
+            LinkedList<PersonEntity> queue = new LinkedList<>();
+
+            PersonEntity personStart = em.find(PersonEntity.class, 1);
+            WebpageEntity webpageEnd = em.find(WebpageEntity.class, 90000);
+
+            visited.add(personStart);
+            queue.add(personStart);
+
+            while (queue.size() != 0)
+            {
+                PersonEntity curr = queue.poll();
+
+                if(curr.getLikes().contains(webpageEnd))
+                    break;
+
+                for (PersonEntity neighbour : curr.getFriends()) {
+                    if (!visited.contains(neighbour)) {
+                        visited.add(neighbour);
+                        queue.add(neighbour);
+                    }
+                }
+            }
+
+            visited = new HashSet<>();
+            queue = new LinkedList<>();
+
+            webpageEnd = em.find(WebpageEntity.class, 100000);
+
+            visited.add(personStart);
+            queue.add(personStart);
+
+            while (queue.size() != 0)
+            {
+                PersonEntity curr = queue.poll();
+
+                if(curr.getLikes().contains(webpageEnd))
+                    break;
+
+                for (PersonEntity neighbour : curr.getFriends()) {
+                    if (!visited.contains(neighbour)) {
+                        visited.add(neighbour);
+                        queue.add(neighbour);
+                    }
+                }
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return -1;
+        }
+
+        long finish = System.currentTimeMillis();
+        return finish - start;
     }
 
     private long countPerson() {
